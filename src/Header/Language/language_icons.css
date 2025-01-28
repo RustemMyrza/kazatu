@@ -1,0 +1,30 @@
+.language-icons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .language-icon {
+    border: none;
+    background: none;
+    padding: 5px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .language-icon img {
+    border-radius: 50%;
+    border: 2px solid transparent;
+    transition: border-color 0.2s;
+  }
+  
+  .language-icon.active img {
+    border-color: #007bff;
+  }
+  
+  .language-icon:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
