@@ -6,7 +6,7 @@ import './Language/language_icons.css';
 import './header.css';
 
 function Header() {
-  const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const [selectedLanguage, setSelectedLanguage] = useState('ru');
 
   const languages = [
     { code: 'en', name: 'English', icon: 'https://img.icons8.com/?size=100&id=t3NE3BsOAQwq&format=png&color=000000' },

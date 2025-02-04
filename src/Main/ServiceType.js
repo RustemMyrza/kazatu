@@ -1,10 +1,13 @@
 import React from 'react';
+import './service_type.css';
 
-const ServiceType = () => {
+const ServiceType = ({ iconClass, serviceText }) => (
     <div className='service-type'>
         <div className='icon'>
-            <i></i>
+            <i className={iconClass}></i>
         </div>
-        <div className='service-text'></div>
+        <div className='service-text'>{serviceText}</div>
     </div>
-}
+);
+
+export default ServiceType;
