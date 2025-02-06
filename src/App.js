@@ -3,11 +3,12 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import './App.css';
 import './Header/Header.js';
-import Header from './Header/Header.js';
-import MainContent from './Main/MainContent.js';
 import translationEN from "./locales/en/translation.json";
 import translationRU from "./locales/ru/translation.json";
 import translationKZ from "./locales/kz/translation.json";
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import GetDataPage from './pages/GetDataPage.js';
+import Home from './pages/Home.js';
 
 const resources = {
   en: {
@@ -32,11 +33,15 @@ i18n.use(initReactI18next).init({
 
 function App() {
   return (
-    <div className="App">
-      <Header/>
-      <hr></hr>
-      <MainContent/>
-    </div>
+    <BrowserRouter>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<Home/>}>
+            <Route path="get-data" element={<GetDataPage />} />
+          </Route>
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 
