@@ -2,12 +2,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #f9f9f9, #e6e6e6);
+    background: linear-gradient(135deg, #4F46E5, #3B82F6);
     border: 1px solid #d1d1d1;
     border-radius: 12px;
     padding: 14px 18px;
     text-decoration: none;
-    color: #333;
+    color: white;
     font-weight: 600;
     font-size: 18px;
     text-align: center;
@@ -20,7 +20,7 @@
 }
 
 .service-type:hover {
-    background: linear-gradient(135deg, #e6e6e6, #d4d4d4);
+    background: linear-gradient(135deg, #3B82F6, #2563EB);
     transform: translateY(-2px);
     box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.2);
 }
