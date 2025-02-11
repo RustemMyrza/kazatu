@@ -35,10 +35,11 @@ function MainContent() {
     const [error, setError] = useState(null); // Состояние для обработки ошибок
     
     useEffect(() => {
-      fetch('http://localhost:3001/api/service/list')
+      fetch('http://localhost:3001/api/web-service/list')
         .then(response => response.json())
         .then(data => {
-          setServices(data[0]['children']); // Сохраняем данные в состоянии
+          console.log('data:', data);
+          setServices(data); // Сохраняем данные в состоянии
           setLoading(false); // Загрузка завершена
         })
         .catch(err => {
@@ -55,16 +56,23 @@ function MainContent() {
       return <div>{error}</div>;
     }
 
+    const serviceListStyle = {
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      flexDirection: "column"
+    }
+
     return (
         <div className='main'>
             <main>
                 <img src='https://img.icons8.com/?size=100&id=43408&format=png&color=000000' alt='image1'></img>
                 <h2>{t("mainTitleInstruction")}</h2>
-                <div className='service-types-list'>
+                <div className='service-types-list' style={serviceListStyle}>
                 {services.map((service) => (
                   <ServiceType
                     iconClass="fas fa-check" // Здесь можно динамически задавать иконку
-                    serviceText={service.workName}
+                    serviceText={service.name_ru}
                     queueId={service.queueId} // Данные с API
                     parentId={service.parentId}
                   />
