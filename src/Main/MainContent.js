@@ -76,6 +76,8 @@ function MainContent() {
       parentName = getParentName(services, parentId, i18n.language);
     }
 
+    console.log()
+
     useEffect(() => {
       fetch('http://localhost:3001/api/web-service/list')
         .then(response => response.json())
@@ -140,14 +142,14 @@ function MainContent() {
                   </button>
                 )}
                 <div className='service-types-list' style={serviceListStyle}>
-                { visibleServices.length > 0 ? form :visibleServices.map((service) => (
+                { visibleServices.length > 0 ? visibleServices.map((service) => (
                   <ServiceType
                     serviceText={ i18n.language === 'ru' ? service.name_ru : service.name_kz}
                     queueId={service.queueId} // Данные с API
                     parentId={service.parentId}
                     link={`/service/${service.queueId}`}
                   />
-                )) }
+                )) : form }
                 </div>
             </main>
         </div>

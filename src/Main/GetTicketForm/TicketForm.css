@@ -1,0 +1,65 @@
+.ticket-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+form {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 350px; /* Ограничение ширины формы */
+    box-sizing: border-box; /* Учитываем padding внутри ширины */
+}
+
+input {
+    width: 100%; /* Гарантированно не выходит за границы */
+    padding: 12px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-sizing: border-box; /* Учитываем padding внутри ширины */
+}
+
+input:focus {
+    border-color: #764ba2;
+    box-shadow: 0 0 5px rgba(118, 75, 162, 0.5);
+    outline: none;
+}
+
+.form-button {
+    background: #764ba2;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%; /* Чтобы кнопка тоже была адаптивной */
+    box-sizing: border-box;
+}
+
+.form-button:hover {
+    background: #5a3d80;
+}
+
+/* 🔽 Полная адаптивность для мобильных 🔽 */
+@media (max-width: 480px) {
+    form {
+        max-width: 100%; /* Форма теперь всегда помещается */
+        padding: 15px;
+    }
+
+    input, .form-button {
+        font-size: 14px;
+        padding: 10px;
+    }
+}
