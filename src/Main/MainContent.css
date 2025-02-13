@@ -1,0 +1,28 @@
+.main-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding-bottom: 5px;
+    margin-bottom: 20px;
+}
+
+.branch-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #34495e;
+    position: relative;
+    padding-left: 12px;
+}
+
+.branch-title::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 6px;
+    height: 80%;
+    transform: translateY(-50%);
+    border-radius: 3px;  
+}

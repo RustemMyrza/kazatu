@@ -43,7 +43,7 @@ function App() {
       <div className="App">
         <Routes>
           <Route path="/" element={<Home/>}>
-            <Route path="/service/:parentId" element={<Home/>} />
+            <Route path="/branch/:branchId/service/:serviceParentId" element={<Home/>} />
           </Route>
         </Routes>
       </div>

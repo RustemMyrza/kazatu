@@ -1,3 +1,8 @@
+@font-face {
+  font-family: 'Century Gothic';
+  src: url('/public/Century_Gothic.ttf');
+}
+
 body {
   padding: 5px 20px;
 

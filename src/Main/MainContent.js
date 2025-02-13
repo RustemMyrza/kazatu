@@ -9,6 +9,7 @@ import translationRU from "../locales/ru/translation.json";
 import translationKZ from "../locales/kz/translation.json";
 import { useParams, useNavigate } from "react-router";
 import './button.css';
+import './MainContent.css';
 import TicketForm from './GetTicketForm/TicketForm.js';
 
 
@@ -39,9 +40,10 @@ i18n
     },
   });
 
-  function getParentName(serviceTree, parentId, lang = 'ru') {
+  function getParentName(serviceTree, serviceParentId, propertyId, lang = 'ru') {
     for (const service of serviceTree) {
-      if (service.queueId === Number(parentId)) {
+      // eslint-disable-next-line eqeqeq
+      if (service[propertyId] == Number(serviceParentId)) {  // ✅ Доступ через []
         // eslint-disable-next-line default-case
         switch (lang) {
           case 'ru':
@@ -52,7 +54,7 @@ i18n
       }
   
       if (service.children.length > 0) {
-        const result = getParentName(service.children, parentId, lang);
+        const result = getParentName(service.children, serviceParentId, propertyId, lang);
         if (result) return result; // Прерываем выполнение, если нашли нужное значение
       }
     }
@@ -60,29 +62,33 @@ i18n
     return null; // Если не найдено, возвращаем null
   }
   
+  
 
 function MainContent() {
     const { t, i18n } = useTranslation();
     const [services, setServices] = useState([]); // Состояние для хранения данных
+    const [branches, setBranches] = useState([]);
     const [loading, setLoading] = useState(true); // Состояние для индикатора загрузки
     const [error, setError] = useState(null); // Состояние для обработки ошибок
-    const { parentId } = useParams();
+    const { branchId, serviceParentId } = useParams();
     const navigate = useNavigate();
     const [form, setForm] = useState(null);
     const [visibleServices, setVisibleServices] = useState(services);
-    let parentName = null;
+    let serviceName = null;
+    let branchName = null;
 
-    if (parentId) {
-      parentName = getParentName(services, parentId, i18n.language);
+    if (serviceParentId !== 2002) {
+      serviceName = getParentName(services, serviceParentId, 'queueId', i18n.language);
     }
 
-    console.log()
+    if (branchId) {
+      branchName = getParentName(branches, branchId, 'branchId', i18n.language);
+    }
 
     useEffect(() => {
       fetch('http://localhost:3001/api/web-service/list')
         .then(response => response.json())
         .then(data => {
-          console.log('data:', data);
           setServices(data); // Сохраняем данные в состоянии
           setLoading(false); // Загрузка завершена
         })
@@ -93,25 +99,52 @@ function MainContent() {
     }, []);
 
     useEffect(() => {
-      // Устанавливаем начальные значения
+      fetch('http://localhost:3001/api/branch/list')
+        .then(response => response.json())
+        .then(data => {
+          setBranches(data); // Сохраняем данные в состоянии
+          setLoading(false); // Загрузка завершена
+        })
+        .catch(err => {
+          setError(`Ошибка загрузки данных: ${err}`);
+          setLoading(false); // Завершаем загрузку в случае ошибки
+        });
+    }, []);
+
+    useEffect(() => {
       setForm(null);
       setVisibleServices([]);
     
-      if (!services.length) return; // Если сервисы не загружены, ничего не делаем
+      if (!services.length) return;
     
-      const parentService = services.find(service => service.queueId === Number(parentId));
+      // Рекурсивно ищем элемент в дереве
+      const findById = (nodes, id) => {
+        for (const node of nodes) {
+          if (node.queueId === id) return node;
+          if (node.children.length > 0) {
+            const found = findById(node.children, id);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
     
+      const parentService = findById(services, Number(serviceParentId));
       if (parentService) {
-        if (Array.isArray(parentService.children) && parentService.children.length === 0) {
-          setForm(<TicketForm />);
+        if (!parentService.children || parentService.children.length === 0) {
+          setForm(<TicketForm 
+            queueId={serviceParentId}
+            branchId={branchId}
+            local={localStorage.getItem('i18nextLng')}
+          />);
         } else {
-          console.log("Родительская услуга");
           setVisibleServices(parentService.children);
         }
-      } else if (parentId === undefined) {
+      } else if (serviceParentId === undefined) {
         setVisibleServices(services);
       }
-    }, [parentId, services]);
+    }, [serviceParentId, services, branchId]);
+    
 
     if (loading) {
       return <div>Загрузка...</div>;
@@ -128,13 +161,13 @@ function MainContent() {
       flexDirection: "column"
     }
 
-
     return (
         <div className='main'>
             <main>
                 <img src='https://img.icons8.com/?size=100&id=43408&format=png&color=000000' alt='image1'></img>
-                <h2>{ parentId !== undefined ? parentName : t("mainTitleInstruction") }</h2>
-                {parentId !== undefined && (
+                <h2 className='main-title'>{ serviceParentId !== '2002' ? serviceName : t("mainTitleInstruction") }</h2>
+                <h4 className='branch-title'>{ branchName ? branchName : 'Филиал не найден' }</h4>
+                {serviceParentId !== '2002' && (
                   <button
                     onClick={() => navigate(-1)}
                     className="go-back">
@@ -146,8 +179,8 @@ function MainContent() {
                   <ServiceType
                     serviceText={ i18n.language === 'ru' ? service.name_ru : service.name_kz}
                     queueId={service.queueId} // Данные с API
-                    parentId={service.parentId}
-                    link={`/service/${service.queueId}`}
+                    serviceParentId={service.parentId}
+                    link={`/branch/${branchId}/service/${service.queueId}`}
                   />
                 )) : form }
                 </div>
