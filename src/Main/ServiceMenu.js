@@ -10,7 +10,8 @@ import translationKZ from "../locales/kz/translation.json";
 import { useParams, useNavigate } from "react-router";
 import './button.css';
 import './MainContent.css';
-import TicketForm from './GetTicketForm/TicketForm.js';
+import GetTicketRequest from './Ticket/RequestForGetTicket.js';
+import Ticket from './Ticket/Ticket.js';
 
 
 const resources = {
@@ -40,10 +41,10 @@ i18n
     },
   });
 
-  function getParentName(serviceTree, serviceParentId, propertyId, lang = 'ru') {
+  function getParentName(serviceTree, serviceId, propertyId, lang = 'ru') {
     for (const service of serviceTree) {
       // eslint-disable-next-line eqeqeq
-      if (service[propertyId] == Number(serviceParentId)) {  // ✅ Доступ через []
+      if (service[propertyId] == Number(serviceId)) {  // ✅ Доступ через []
         // eslint-disable-next-line default-case
         switch (lang) {
           case 'ru':
@@ -54,7 +55,7 @@ i18n
       }
   
       if (service.children.length > 0) {
-        const result = getParentName(service.children, serviceParentId, propertyId, lang);
+        const result = getParentName(service.children, serviceId, propertyId, lang);
         if (result) return result; // Прерываем выполнение, если нашли нужное значение
       }
     }
@@ -70,15 +71,18 @@ function MainContent() {
     const [branches, setBranches] = useState([]);
     const [loading, setLoading] = useState(true); // Состояние для индикатора загрузки
     const [error, setError] = useState(null); // Состояние для обработки ошибок
-    const { branchId, serviceParentId } = useParams();
+    const [ticketData, setTicketData] = useState(null);
+    const { branchId, serviceId } = useParams();
     const navigate = useNavigate();
-    const [form, setForm] = useState(null);
     const [visibleServices, setVisibleServices] = useState(services);
+    const iin = localStorage.getItem('iin');
+    const phoneNum = localStorage.getItem('phone');
+    const lang = localStorage.getItem('i18nextLng');
     let serviceName = null;
     let branchName = null;
 
-    if (serviceParentId !== 2002) {
-      serviceName = getParentName(services, serviceParentId, 'queueId', i18n.language);
+    if (serviceId !== 2002) {
+      serviceName = getParentName(services, serviceId, 'queueId', i18n.language);
     }
 
     if (branchId) {
@@ -112,12 +116,10 @@ function MainContent() {
     }, []);
 
     useEffect(() => {
-      setForm(null);
       setVisibleServices([]);
     
       if (!services.length) return;
     
-      // Рекурсивно ищем элемент в дереве
       const findById = (nodes, id) => {
         for (const node of nodes) {
           if (node.queueId === id) return node;
@@ -129,21 +131,39 @@ function MainContent() {
         return null;
       };
     
-      const parentService = findById(services, Number(serviceParentId));
+      const parentService = findById(services, Number(serviceId));
       if (parentService) {
         if (!parentService.children || parentService.children.length === 0) {
-          setForm(<TicketForm 
-            queueId={serviceParentId}
-            branchId={branchId}
-            local={localStorage.getItem('i18nextLng')}
-          />);
+          (async () => {
+            const data = await GetTicketRequest({
+              queueId: serviceId,
+              iin,
+              phoneNum,
+              branchId,
+              local: lang
+            });
+            console.log("Полученные данные:", data);
+            setTicketData(data);
+          })();
         } else {
           setVisibleServices(parentService.children);
         }
-      } else if (serviceParentId === undefined) {
+      } else if (serviceId === undefined) {
         setVisibleServices(services);
       }
-    }, [serviceParentId, services, branchId]);
+    }, [serviceId, services, branchId, iin, lang, phoneNum, navigate]); // ✅ Добавляем navigate
+    
+    useEffect(() => {
+      if (ticketData) {
+        console.log("ticketData перед navigate:", ticketData);
+        if (ticketData?.eventId) {
+          navigate(`/branch/${branchId}/ticket/${ticketData.eventId}`, {
+            state: ticketData
+          });
+        }
+      }
+    }, [ticketData, branchId, navigate]); // ✅ Ждем, пока ticketData загрузится
+    
     
 
     if (loading) {
@@ -164,10 +184,9 @@ function MainContent() {
     return (
         <div className='main'>
             <main>
-                <img src='https://img.icons8.com/?size=100&id=43408&format=png&color=000000' alt='image1'></img>
-                <h2 className='main-title'>{ serviceParentId !== '2002' ? serviceName : t("mainTitleInstruction") }</h2>
+                <h2 className='main-title'>{ serviceId !== '2002' ? serviceName : t("mainTitleInstruction") }</h2>
                 <h4 className='branch-title'>{ branchName ? branchName : 'Филиал не найден' }</h4>
-                {serviceParentId !== '2002' && (
+                {serviceId !== '2002' && (
                   <button
                     onClick={() => navigate(-1)}
                     className="go-back">
@@ -179,10 +198,13 @@ function MainContent() {
                   <ServiceType
                     serviceText={ i18n.language === 'ru' ? service.name_ru : service.name_kz}
                     queueId={service.queueId} // Данные с API
-                    serviceParentId={service.parentId}
+                    serviceId={service.parentId}
                     link={`/branch/${branchId}/service/${service.queueId}`}
                   />
-                )) : form }
+                )) : 
+                <Ticket
+                ticketData={ticketData}
+                /> };
                 </div>
             </main>
         </div>

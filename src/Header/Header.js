@@ -1,5 +1,4 @@
-import './Logo.js'
-import Logo from './Logo.js';
+import '../Logo.js';
 import React, { useState } from 'react';
 import LanguageIcons from './Language/LanguageIcons.js';
 import './Language/language_icons.css';
@@ -21,9 +20,6 @@ function Header() {
   return (
     <div className='header'>
       <header>
-        <div className='logo'>
-          <Logo/>
-        </div>
         <div className='language-block'>
           <LanguageIcons
                 languages={languages}

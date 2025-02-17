@@ -1,10 +1,11 @@
-import React from 'react';
-import './service_type.css';
+import React from "react";
+import { Link } from "react-router-dom";
+import "./service_type.css";
 
 const ServiceType = ({ serviceText, queueId, parentId, link }) => (
-    <a href={link} className="service-type" queue-id={queueId} parent-id={parentId}>
-        <span className="service-text">{serviceText}</span>
-    </a>
+  <Link to={link} className="service-type" data-queue-id={queueId} data-parent-id={parentId}>
+    <span className="service-text">{serviceText}</span>
+  </Link>
 );
 
 export default ServiceType;
