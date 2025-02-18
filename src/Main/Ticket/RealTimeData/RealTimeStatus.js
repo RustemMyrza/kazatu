@@ -1,40 +1,67 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import checkRedirectedTicket from "./CheckRedirect"; // Импортируем функцию
 
 const SSE_URL = "http://localhost:3001/api/get-ticket-status";
 
-export default function RealTimeStatus({ branchId, eventId }) {
+export default function RealTimeStatus({ branchId, ticketData }) {
     const [status, setStatus] = useState(null);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
-
+    console.log('ticketData:', ticketData);
     useEffect(() => {
-        const url = `${SSE_URL}?branchId=${branchId}&eventId=${eventId}`;
+        setLoading(true); // Устанавливаем загрузку при запуске
+    
+        const url = `${SSE_URL}?branchId=${branchId}&eventId=${ticketData.eventId}`;
         const eventSource = new EventSource(url);
-
-        eventSource.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            setStatus(data.action);
-            if (data.action === 'COMPLETED') {
-                console.log('data.action:', data.action);
-                // localStorage.removeItem('iin');
-                // localStorage.removeItem('phone');
-                // localStorage.removeItem('ticketReceived');
-                // localStorage.removeItem('ticketTimestamp');
-                // navigate(`/branch/${branchId}`);
+    
+        eventSource.onmessage = async (event) => {  // Используем async, чтобы можно было использовать await
+            if (!event.data) return;
+    
+            try {
+                const data = JSON.parse(event.data);
+                if (!data || !data.action) return;
+    
+                if (data.action === 'COMPLETED') {
+                    try {
+                        // Получаем результат асинхронной функции
+                        const redirectedTicket = await checkRedirectedTicket(ticketData); // Заменяем на правильный импорт
+                        if (redirectedTicket) {
+                            navigate(`/branch/${branchId}/ticket/${redirectedTicket['$']['EventId']}`, {
+                                eventId: redirectedTicket['$']['EventId'],
+                                ticketNo: redirectedTicket['$']['TicketNo'],
+                                startTime: redirectedTicket['$']['StartTime'],
+                                serviceName: redirectedTicket['$']['ServiceName']
+                            })
+                        } else {
+                            localStorage.removeItem('iin');
+                            localStorage.removeItem('phone');
+                            localStorage.removeItem('ticketReceived');
+                            localStorage.removeItem('ticketTimestamp');
+                            navigate(`/branch/${branchId}`);
+                        }
+                    } catch (error) {
+                        console.error('Ошибка при получении перенаправленного талона:', error);
+                    }
+                }
+    
+                setStatus(data.action);
+                setLoading(false);
+            } catch (error) {
+                console.error("Ошибка парсинга SSE:", error);
             }
-            setLoading(false);
         };
-
+    
         eventSource.onerror = (err) => {
             console.error("Ошибка SSE:", err);
             setLoading(false);
         };
-
+    
         return () => {
             eventSource.close();
         };
-    }, [branchId, eventId, navigate]);
+    }, [branchId, ticketData, navigate]);
+    
 
     // Пока идет загрузка, показываем индикатор
     if (loading) {
@@ -59,5 +86,4 @@ export default function RealTimeStatus({ branchId, eventId }) {
             {status === "COMPLETED" && <h4>✅ Обслужено</h4>}
         </div>
     );
-    
 }

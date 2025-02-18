@@ -45,7 +45,7 @@ function Ticket() {
 
                 <div className="ticket-section">
                     <p className="ticket-number">
-                        <TicketStatus branchId={branchId} eventId={ticketData.eventId} />
+                        <TicketStatus branchId={branchId} ticketData={ticketData} />
                     </p>
                     <p className="ticket-label">
                         {i18n.language === "ru" ? "Статус талона" : "Талон мәртебесі"}
