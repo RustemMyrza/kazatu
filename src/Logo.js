@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Logo = () => (
-    <img src='' alt='logo' width={75}></img>
+    <img src='/Logo.png' alt='logo' width={150} />
 );
 
 export default Logo;

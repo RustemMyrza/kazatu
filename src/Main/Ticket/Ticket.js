@@ -6,6 +6,7 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import QueueCount from './RealTimeData/RealTimeCount.js';
 import TicketStatus from './RealTimeData/RealTimeStatus.js';
 import { useParams } from "react-router";
+import Scoreboard from "./RealTimeData/Scoreboard.js";
 import "./Ticket.css";
 
 
@@ -23,6 +24,14 @@ i18n
     },
   });
 
+  const queueData = [
+    { ticketNumber: 388, windowNumber: 2 },
+    { ticketNumber: 387, windowNumber: 1 },
+    { ticketNumber: 386, windowNumber: 2 },
+    { ticketNumber: 385, windowNumber: 2 },
+    { ticketNumber: 696, windowNumber: 2 },
+];
+
 
 function Ticket() {
     localStorage.setItem('ticketReceived', true);
@@ -37,53 +46,56 @@ function Ticket() {
     const { i18n } = useTranslation();
 
     return (
-        <div className="ticket-container">
-            <div className="ticket-card">
-                <h2 className="ticket-title">
-                    {i18n.language === "ru" ? "Ваш талон" : "Сіздің талоныңыз"}
-                </h2>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", backgroundColor: "white", flexDirection: "column", padding: "30px 0px 50px 0px" }}>
+            <div className="ticket-container">
+                <div className="ticket-card">
+                    <h2 className="ticket-title">
+                        {i18n.language === "ru" ? "Ваш талон" : "Сіздің талоныңыз"}
+                    </h2>
 
-                <div className="ticket-section">
-                    <p className="ticket-number">
-                        <TicketStatus branchId={branchId} ticketData={ticketData} />
-                    </p>
-                    <p className="ticket-label">
-                        {i18n.language === "ru" ? "Статус талона" : "Талон мәртебесі"}
-                    </p>
-                </div>
+                    <div className="ticket-section">
+                        <p className="ticket-number">
+                            <TicketStatus branchId={branchId} ticketData={ticketData} />
+                        </p>
+                        <p className="ticket-label">
+                            {i18n.language === "ru" ? "Статус талона" : "Талон мәртебесі"}
+                        </p>
+                    </div>
 
-                <div className="ticket-section">
-                    <p className="ticket-number">
-                        <QueueCount branchId={branchId} eventId={ticketData.eventId} />
-                    </p>
-                    <p className="ticket-label">
-                        {i18n.language === "ru" ? "Перед вами" : "Сіздің алдыңызда"}
-                    </p>
-                </div>
+                    <div className="ticket-section">
+                        <p className="ticket-number">
+                            <QueueCount branchId={branchId} eventId={ticketData.eventId} />
+                        </p>
+                        <p className="ticket-label">
+                            {i18n.language === "ru" ? "Перед вами" : "Сіздің алдыңызда"}
+                        </p>
+                    </div>
 
-                <div className="ticket-section">
-                    <p className="ticket-number">{ticketData.ticketNo}</p>
-                    <p className="ticket-label">
-                        {i18n.language === "ru" ? "Номер" : "Нөмір"}
-                    </p>
-                </div>
+                    <div className="ticket-section">
+                        <p className="ticket-number">{ticketData.ticketNo}</p>
+                        <p className="ticket-label">
+                            {i18n.language === "ru" ? "Номер" : "Нөмір"}
+                        </p>
+                    </div>
 
-                <div className="ticket-section">
-                    <p className="ticket-service">{ticketData.serviceName}</p>
-                    <p className="ticket-label">
-                        {i18n.language === "ru" ? "Услуга" : "Қызмет"}
-                    </p>
-                </div>
+                    <div className="ticket-section">
+                        <p className="ticket-service">{ticketData.serviceName}</p>
+                        <p className="ticket-label">
+                            {i18n.language === "ru" ? "Услуга" : "Қызмет"}
+                        </p>
+                    </div>
 
-                <div className="ticket-section">
-                    <p className="ticket-time">
-                        {new Date(parseInt(ticketData.startTime)).toLocaleTimeString()}
-                    </p>
-                    <p className="ticket-label">
-                        {i18n.language === "ru" ? "Начало" : "Басталу"}
-                    </p>
+                    <div className="ticket-section">
+                        <p className="ticket-time">
+                            {new Date(parseInt(ticketData.startTime)).toLocaleTimeString()}
+                        </p>
+                        <p className="ticket-label">
+                            {i18n.language === "ru" ? "Начало" : "Басталу"}
+                        </p>
+                    </div>
                 </div>
             </div>
+            <Scoreboard queueData={queueData}/>
         </div>
     );
 }

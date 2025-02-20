@@ -8,7 +8,6 @@ function Header() {
   const [selectedLanguage, setSelectedLanguage] = useState('ru');
 
   const languages = [
-    { code: 'en', name: 'English', icon: 'https://img.icons8.com/?size=100&id=t3NE3BsOAQwq&format=png&color=000000' },
     { code: 'ru', name: 'Русский', icon: 'https://img.icons8.com/?size=100&id=vioRCshpCBKv&format=png&color=000000' },
     { code: 'kz', name: 'Қазақша', icon: 'https://img.icons8.com/?size=100&id=WYQnJ00xxgjb&format=png&color=000000' },
   ];

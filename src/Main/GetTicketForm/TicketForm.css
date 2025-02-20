@@ -29,13 +29,13 @@ input {
 }
 
 input:focus {
-    border-color: #764ba2;
-    box-shadow: 0 0 5px rgba(118, 75, 162, 0.5);
+    border-color: #047b74;
+    box-shadow: 0 0 5px rgba(3, 92, 86, 0.5);
     outline: none;
 }
 
 .form-button {
-    background: #764ba2;
+    background: #035c56;
     color: white;
     border: none;
     padding: 12px;
@@ -48,7 +48,7 @@ input:focus {
 }
 
 .form-button:hover {
-    background: #5a3d80;
+    background: #029a90;
 }
 
 /* 🔽 Полная адаптивность для мобильных 🔽 */

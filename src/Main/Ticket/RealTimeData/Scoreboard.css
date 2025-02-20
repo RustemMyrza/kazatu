@@ -1,0 +1,29 @@
+.queue-board {
+    width: 320px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: white;
+}
+
+.queue-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    font-weight: bold;
+    background-color: #f0f0f0;
+}
+
+.queue-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.queue-row.active {
+    background-color: #035c56;
+    color: white;
+    font-weight: bold;
+}

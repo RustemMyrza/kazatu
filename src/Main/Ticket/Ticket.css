@@ -30,7 +30,7 @@
 .ticket-number {
     font-size: 22px;
     font-weight: bold;
-    color: #764ba2;
+    color: #035c56;
 }
 
 .ticket-service {
@@ -51,7 +51,7 @@
 }
 
 .ticket-button {
-    background: #764ba2;
+    background: #035c56;
     color: white;
     font-size: 14px;
     padding: 8px 14px;
@@ -62,5 +62,5 @@
 }
 
 .ticket-button:hover {
-    background: #5a3d80;
+    background: #029a90;
 }
