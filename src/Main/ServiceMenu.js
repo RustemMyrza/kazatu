@@ -204,7 +204,7 @@ function MainContent() {
                 )) : 
                 <Ticket
                 ticketData={ticketData}
-                /> };
+                /> }
                 </div>
             </main>
         </div>

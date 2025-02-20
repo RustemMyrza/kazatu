@@ -36,6 +36,29 @@ function MainLayout() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const ticketReceived = localStorage.getItem("ticketReceived");
+    const eventId = localStorage.getItem("eventId");
+    const getTicketData = async (eventId, branchId) => {
+      try {
+        const response = await fetch(`http://localhost:3001/api/get-ticket-info?eventId=${eventId}&branchId=${branchId}`);
+        const result = await response.json();
+        return result;
+        console.log('result:', result);
+      } catch (error) {
+        console.error('Ошибка при ПОПЫТКЕ сделать запрос:', error);
+        throw error;
+      }
+    };
+    const ticketData = getTicketData(eventId, branchId);
+    console.log('ticketData:', ticketData);
+    // Проверяем, есть ли ticketReceived и eventId (он должен быть не пустым)
+    if (ticketReceived === 'true' && eventId !== 'undefined' && eventId !== "") {
+      // navigate(`/branch/${branchId}/ticket/${eventId}`);
+    }
+  }, [branchId, navigate]);
+  
+
+  useEffect(() => {
     async function fetchBranches() {
       try {
         const response = await fetch("http://localhost:3001/api/branch/list");

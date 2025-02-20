@@ -1,30 +1,17 @@
-import i18n from "i18next";
-import { initReactI18next } from "react-i18next";
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from "react-i18next";
-import { useLocation } from "react-router-dom";
-import LanguageDetector from "i18next-browser-languagedetector";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import checkRedirectedTicket from "./RealTimeData/CheckRedirect.js";
+import RedirectMessage from "./RealTimeData/RedirectMessage.js";
 import QueueCount from './RealTimeData/RealTimeCount.js';
-import TicketStatus from './RealTimeData/RealTimeStatus.js';
-import { useParams } from "react-router";
+import RealTimeStatus from './RealTimeData/RealTimeStatus.js';
 import Scoreboard from "./RealTimeData/Scoreboard.js";
+import ServiceRating from './ServiceRating.js';
 import "./Ticket.css";
 
 
-i18n
-  .use(LanguageDetector) // Подключаем автоопределение языка
-  .use(initReactI18next) // Инициализируем react-i18next
-  .init({
-    fallbackLng: "ru",
-    interpolation: {
-      escapeValue: false,
-    },
-    detection: {
-      order: ["localStorage", "cookie", "navigator"], // Откуда определять язык
-      caches: ["localStorage", "cookie"], // Где сохранять
-    },
-  });
-
-  const queueData = [
+const SSE_URL = "http://localhost:3001/api/get-ticket-status";
+const queueData = [
     { ticketNumber: 388, windowNumber: 2 },
     { ticketNumber: 387, windowNumber: 1 },
     { ticketNumber: 386, windowNumber: 2 },
@@ -32,18 +19,65 @@ i18n
     { ticketNumber: 696, windowNumber: 2 },
 ];
 
-
-function Ticket() {
-    localStorage.setItem('ticketReceived', true);
+function Ticket({propTicketData}) {
     const { branchId } = useParams();
     const location = useLocation();
-    console.log("location.state:", location.state); // 🔥 Проверяем, что приходит
-    
-    const ticketData = location.state || {};
-    console.log("ticketData:", ticketData); // 🔥 Проверяем, не `undefined` ли он
-    
-    
+    const ticketData = useMemo(() => location.state || {}, [location.state]);
+    const navigate = useNavigate();
     const { i18n } = useTranslation();
+    const [status, setStatus] = useState(null);
+    const [redirectData, setRedirectData] = useState(null);
+
+    useEffect(() => {
+        localStorage.setItem('ticketReceived', true);
+        localStorage.setItem('eventId', ticketData.eventId);
+        const eventSource = new EventSource(`${SSE_URL}?branchId=${branchId}&eventId=${ticketData.eventId}`);
+
+        eventSource.onmessage = async (event) => {
+            if (!event.data) return;
+            try {
+                const data = JSON.parse(event.data);
+                console.log('data:', data);
+                if (!data?.action) return;
+                setStatus(data.action);
+
+                if (data.action === "COMPLETED") {
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+                    const redirectedTicket = await checkRedirectedTicket(ticketData.eventId, branchId);
+                    if (redirectedTicket) {
+                        setRedirectData({
+                            eventId: redirectedTicket.EventId,
+                            ticketNo: redirectedTicket.TicketNo,
+                            startTime: redirectedTicket.StartTime,
+                            serviceName: redirectedTicket.ServiceName,
+                        });
+                    } else {
+                        ["iin", "phone", "ticketReceived", "ticketTimestamp", 'eventId'].forEach(item => localStorage.removeItem(item));
+                    }
+                } else if (data.action === "MISSED") {
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+                    ["iin", "phone", "ticketReceived", "ticketTimestamp", 'eventId'].forEach(item => localStorage.removeItem(item));
+                    navigate(`/branch/${branchId}`);
+                }
+            } catch (error) {
+                console.error("Ошибка парсинга SSE:", error);
+            }
+        };
+
+        eventSource.onerror = (err) => {
+            console.error("Ошибка SSE:", err);
+            eventSource.close();
+        };
+
+        return () => eventSource.close();
+    }, [branchId, i18n.language, navigate, ticketData]);
+
+    if (redirectData) {
+        return <RedirectMessage onRedirect={() => {
+            setRedirectData(null)
+            navigate(`/branch/${branchId}/ticket/${redirectData.eventId}`, { state: redirectData })}
+        } />;
+    }
 
     return (
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", backgroundColor: "white", flexDirection: "column", padding: "30px 0px 50px 0px" }}>
@@ -55,7 +89,7 @@ function Ticket() {
 
                     <div className="ticket-section">
                         <p className="ticket-number">
-                            <TicketStatus branchId={branchId} ticketData={ticketData} />
+                            <RealTimeStatus branchId={branchId} ticketData={ticketData} status={status} />
                         </p>
                         <p className="ticket-label">
                             {i18n.language === "ru" ? "Статус талона" : "Талон мәртебесі"}
@@ -95,7 +129,15 @@ function Ticket() {
                     </div>
                 </div>
             </div>
-            <Scoreboard queueData={queueData}/>
+
+            {status === 'COMPLETED' ? (
+                <ServiceRating
+                eventId={ticketData.eventId}
+                branchId={branchId}
+                />
+            ) : (
+                <Scoreboard queueData={queueData} />
+            )}
         </div>
     );
 }

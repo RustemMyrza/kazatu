@@ -1,0 +1,32 @@
+.redirect-message {
+    background-color: white; /* Белый фон */
+    color: #035c56; /* Цвет текста */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Легкая тень */
+    text-align: center;
+    max-width: 300px;
+    margin: 0 auto;
+    animation: fadeIn 0.5s ease-in-out; /* Анимация появления */
+  }
+  
+  .redirect-message h4 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+  }
+  
+  .redirect-message p {
+    font-size: 1rem;
+    font-weight: bold;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }

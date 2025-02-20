@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import './RedirectMessage.css';
 
 const RedirectMessage = ({ onRedirect }) => {
-  const [count, setCount] = useState(3); // Начальное значение счетчика
+  const [count, setCount] = useState(5); // Начальное значение счетчика
 
   useEffect(() => {
     if (count === 0) {
@@ -21,7 +22,7 @@ const RedirectMessage = ({ onRedirect }) => {
 
   return (
     <div>
-      <h4>Мы перенаправляем вас на другого оператора</h4>
+      <h4 className="redirect-message">Мы перенаправляем вас на другого оператора</h4>
       <p>Осталось: {count} секунд</p>
     </div>
   );
