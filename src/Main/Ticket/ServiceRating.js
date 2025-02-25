@@ -33,6 +33,7 @@ function ServiceRating({ eventId, branchId }) {
             if (result.message.trim() == 'Ok') {
                 setResponseMessage('Ваша оценка успешно отправлена');
                 setSelectedRating(null);
+                ["iin", "phone", "ticketReceived", "ticketTimestamp", 'eventId'].forEach(item => localStorage.removeItem(item));
                 await new Promise(resolve => setTimeout(resolve, 3000));
                 navigate(`/branch/${branchId}`);
             } else {

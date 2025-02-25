@@ -36,25 +36,66 @@ function MainLayout() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const ticketReceived = localStorage.getItem("ticketReceived");
-    const eventId = localStorage.getItem("eventId");
-    const getTicketData = async (eventId, branchId) => {
-      try {
-        const response = await fetch(`http://localhost:3001/api/get-ticket-info?eventId=${eventId}&branchId=${branchId}`);
-        const result = await response.json();
-        return result;
-        console.log('result:', result);
-      } catch (error) {
-        console.error('Ошибка при ПОПЫТКЕ сделать запрос:', error);
-        throw error;
+    const fetchTicketData = async () => {
+      const ticketReceived = localStorage.getItem("ticketReceived");
+      const eventId = localStorage.getItem("eventId");
+
+      if (ticketReceived === 'true' && eventId !== 'undefined') {
+        try {
+          const ticketInfoResponse = await fetch(`http://localhost:3001/api/get-ticket-info?eventId=${eventId}&branchId=${branchId}`);
+          const ticketInfoResult = await ticketInfoResponse.json();
+          console.log('ticketInfoResult:', ticketInfoResult);
+          if (ticketInfoResult.State === "NEW" || ticketInfoResult.State === "INSERVICE") {
+            console.log("Данные загружены успешно, перенаправляем...");
+            navigate(`ticket/${ticketInfoResult.EventId}`, {
+              state: {
+                eventId: ticketInfoResult.EventId,
+                ticketNo: ticketInfoResult.TicketNo,
+                startTime: ticketInfoResult.StartTime,
+                serviceName: ticketInfoResult.ServiceName
+              }
+            });
+          } else if (ticketInfoResult.State === "COMPLETED") {
+            try {
+              const redirectedTicketResponse = await fetch(`http://localhost:3001/api/get-redirected-ticket?eventId=${eventId}&branchId=${branchId}`);
+              const redirectedTicketResult = await redirectedTicketResponse.json();
+              if (redirectedTicketResult.success) {
+                console.log('redirectedTicketResult success true');
+                navigate(`ticket/${redirectedTicketResult.EventId}`, {
+                  state: {
+                    eventId: redirectedTicketResult.EventId,
+                    ticketNo: redirectedTicketResult.TicketNo,
+                    startTime: redirectedTicketResult.StartTime,
+                    serviceName: redirectedTicketResult.ServiceName
+                  }
+                });
+              } else {
+                console.log('redirectedTicketResult success false');
+                navigate(`ticket/${ticketInfoResult.EventId}`, {
+                  state: {
+                    eventId: ticketInfoResult.EventId,
+                    ticketNo: ticketInfoResult.TicketNo,
+                    startTime: ticketInfoResult.StartTime,
+                    serviceName: ticketInfoResult.ServiceName
+                  }
+                });
+              }
+            } catch (error) {
+              console.error('Ошибка при попытке сделать запрос:', error);
+            }
+          }
+        } catch (error) {
+          console.error('Ошибка при попытке сделать запрос:', error);
+        }
+      } else {
+        // localStorage.removeItem('ticketReceived');
+        // localStorage.removeItem('eventId');
+        // localStorage.removeItem('phone');
+        // localStorage.removeItem('iin');
+        // localStorage.removeItem('ticketTimestamp');
       }
     };
-    const ticketData = getTicketData(eventId, branchId);
-    console.log('ticketData:', ticketData);
-    // Проверяем, есть ли ticketReceived и eventId (он должен быть не пустым)
-    if (ticketReceived === 'true' && eventId !== 'undefined' && eventId !== "") {
-      // navigate(`/branch/${branchId}/ticket/${eventId}`);
-    }
+    fetchTicketData();
   }, [branchId, navigate]);
   
 

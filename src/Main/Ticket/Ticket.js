@@ -29,13 +29,13 @@ function Ticket({propTicketData}) {
     const [redirectData, setRedirectData] = useState(null);
 
     useEffect(() => {
-        localStorage.setItem('ticketReceived', true);
-        localStorage.setItem('eventId', ticketData.eventId);
         const eventSource = new EventSource(`${SSE_URL}?branchId=${branchId}&eventId=${ticketData.eventId}`);
 
         eventSource.onmessage = async (event) => {
             if (!event.data) return;
             try {
+                localStorage.setItem('ticketReceived', true);
+                localStorage.setItem('eventId', ticketData.eventId);
                 const data = JSON.parse(event.data);
                 console.log('data:', data);
                 if (!data?.action) return;
@@ -51,8 +51,6 @@ function Ticket({propTicketData}) {
                             startTime: redirectedTicket.StartTime,
                             serviceName: redirectedTicket.ServiceName,
                         });
-                    } else {
-                        ["iin", "phone", "ticketReceived", "ticketTimestamp", 'eventId'].forEach(item => localStorage.removeItem(item));
                     }
                 } else if (data.action === "MISSED") {
                     await new Promise(resolve => setTimeout(resolve, 3000));
