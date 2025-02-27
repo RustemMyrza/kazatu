@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const SSE_URL = 'http://localhost:3001/api/get-count-queue-people';
+const SSE_URL = `${process.env.REACT_APP_BACK_URL}/api/get-count-queue-people`;
 
 export default function RealTimeCount({ branchId, eventId }) {
     const [count, setCount] = useState(-1);

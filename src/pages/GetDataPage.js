@@ -4,7 +4,7 @@ const GetDataPage = () => {
     const [data, setData] = useState(null);
 
     useEffect(() => {
-        fetch('http://localhost:3001/get-soap-data')
+        fetch(`${process.env.REACT_APP_BACK_URL}/get-soap-data`)
           .then(response => response.json())
           .then(json => setData(json))
           .catch(error => console.error(error));

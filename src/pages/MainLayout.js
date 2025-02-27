@@ -42,7 +42,7 @@ function MainLayout() {
 
       if (ticketReceived === 'true' && eventId !== 'undefined') {
         try {
-          const ticketInfoResponse = await fetch(`http://localhost:3001/api/get-ticket-info?eventId=${eventId}&branchId=${branchId}`);
+          const ticketInfoResponse = await fetch(`${process.env.REACT_APP_BACK_URL}/api/get-ticket-info?eventId=${eventId}&branchId=${branchId}`);
           const ticketInfoResult = await ticketInfoResponse.json();
           console.log('ticketInfoResult:', ticketInfoResult);
           if (ticketInfoResult.State === "NEW" || ticketInfoResult.State === "INSERVICE") {
@@ -57,7 +57,7 @@ function MainLayout() {
             });
           } else if (ticketInfoResult.State === "COMPLETED") {
             try {
-              const redirectedTicketResponse = await fetch(`http://localhost:3001/api/get-redirected-ticket?eventId=${eventId}&branchId=${branchId}`);
+              const redirectedTicketResponse = await fetch(`${process.env.REACT_APP_BACK_URL}/api/get-redirected-ticket?eventId=${eventId}&branchId=${branchId}`);
               const redirectedTicketResult = await redirectedTicketResponse.json();
               if (redirectedTicketResult.success) {
                 console.log('redirectedTicketResult success true');
@@ -102,7 +102,7 @@ function MainLayout() {
   useEffect(() => {
     async function fetchBranches() {
       try {
-        const response = await fetch("http://localhost:3001/api/branch/list");
+        const response = await fetch(`${process.env.REACT_APP_BACK_URL}/api/branch/list`);
         const data = await response.json();
         setBranches(data);
       } catch (error) {

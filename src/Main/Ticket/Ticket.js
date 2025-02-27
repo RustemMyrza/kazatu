@@ -10,7 +10,7 @@ import ServiceRating from './ServiceRating.js';
 import "./Ticket.css";
 
 
-const SSE_URL = "http://localhost:3001/api/get-ticket-status";
+const SSE_URL = `${process.env.REACT_APP_BACK_URL}/api/get-ticket-status`;
 const queueData = [
     { ticketNumber: 388, windowNumber: 2 },
     { ticketNumber: 387, windowNumber: 1 },
@@ -51,8 +51,11 @@ function Ticket({propTicketData}) {
                             startTime: redirectedTicket.StartTime,
                             serviceName: redirectedTicket.ServiceName,
                         });
+                    } else {
+                        eventSource.close();
                     }
                 } else if (data.action === "MISSED") {
+                    eventSource.close();
                     await new Promise(resolve => setTimeout(resolve, 3000));
                     ["iin", "phone", "ticketReceived", "ticketTimestamp", 'eventId'].forEach(item => localStorage.removeItem(item));
                     navigate(`/branch/${branchId}`);

@@ -90,7 +90,7 @@ function MainContent() {
     }
 
     useEffect(() => {
-      fetch('http://localhost:3001/api/web-service/list')
+      fetch(`${process.env.REACT_APP_BACK_URL}/api/web-service/list`)
         .then(response => response.json())
         .then(data => {
           setServices(data); // Сохраняем данные в состоянии
@@ -103,7 +103,7 @@ function MainContent() {
     }, []);
 
     useEffect(() => {
-      fetch('http://localhost:3001/api/branch/list')
+      fetch(`${process.env.REACT_APP_BACK_URL}/api/branch/list`)
         .then(response => response.json())
         .then(data => {
           setBranches(data); // Сохраняем данные в состоянии

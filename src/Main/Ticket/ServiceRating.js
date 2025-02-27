@@ -21,7 +21,7 @@ function ServiceRating({ eventId, branchId }) {
         const data = { rating: selectedRating, eventId: eventId };
 
         try {
-        const response = await fetch("http://localhost:3001/api/service-rate", {
+        const response = await fetch(`${process.env.REACT_APP_BACK_URL}/api/service-rate`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
