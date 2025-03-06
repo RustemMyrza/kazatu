@@ -26,6 +26,7 @@ function Ticket({propTicketData}) {
     const navigate = useNavigate();
     const { i18n } = useTranslation();
     const [status, setStatus] = useState(null);
+    const [windowNum, setWindowNum] = useState('');
     const [redirectData, setRedirectData] = useState(null);
 
     useEffect(() => {
@@ -59,6 +60,10 @@ function Ticket({propTicketData}) {
                     await new Promise(resolve => setTimeout(resolve, 3000));
                     ["iin", "phone", "ticketReceived", "ticketTimestamp", 'eventId'].forEach(item => localStorage.removeItem(item));
                     navigate(`/branch/${branchId}`);
+                } else if (data.action === "CALLING") {
+                    if (data.windowNum) {
+                        setWindowNum(data.windowNum);
+                    }
                 }
             } catch (error) {
                 console.error("Ошибка парсинга SSE:", error);
@@ -81,66 +86,49 @@ function Ticket({propTicketData}) {
     }
 
     return (
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", backgroundColor: "white", flexDirection: "column", padding: "30px 0px 50px 0px" }}>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
             <div className="ticket-container">
                 <div className="ticket-card">
                     <h2 className="ticket-title">
                         {i18n.language === "ru" ? "Ваш талон" : "Сіздің талоныңыз"}
                     </h2>
-
-                    <div className="ticket-section">
-                        <p className="ticket-number">
-                            <RealTimeStatus branchId={branchId} ticketData={ticketData} status={status} />
-                        </p>
-                        <p className="ticket-label">
-                            {i18n.language === "ru" ? "Статус талона" : "Талон мәртебесі"}
-                        </p>
-                    </div>
-
-                    <div className="ticket-section">
-                        <p className="ticket-number">
-                            <QueueCount branchId={branchId} eventId={ticketData.eventId} />
-                        </p>
-                        <p className="ticket-label">
-                            {i18n.language === "ru" ? "Перед вами" : "Сіздің алдыңызда"}
-                        </p>
-                    </div>
-
-                    <div className="ticket-section">
+    
+                    <div className="ticket-content">
                         <p className="ticket-number">{ticketData.ticketNo}</p>
-                        <p className="ticket-label">
-                            {i18n.language === "ru" ? "Номер" : "Нөмір"}
-                        </p>
-                    </div>
-
-                    <div className="ticket-section">
                         <p className="ticket-service">{ticketData.serviceName}</p>
-                        <p className="ticket-label">
-                            {i18n.language === "ru" ? "Услуга" : "Қызмет"}
-                        </p>
-                    </div>
-
-                    <div className="ticket-section">
-                        <p className="ticket-time">
+    
+                        { status === 'CALLING' ? (
+                            <div className="blinking-status">
+                                {i18n.language === "ru" ? `Подойдите к ${windowNum} окну!` : `${windowNum} терезеге келіңіз!`}
+                            </div>
+                        ) : (
+                            <div className="ticket-details">
+                                <span>{i18n.language === "ru" ? "Статус" : "Мәртебе"}:</span>
+                                <RealTimeStatus branchId={branchId} ticketData={ticketData} status={status} />
+                            </div>
+                        ) }
+                        
+                        <div className="ticket-details">
+                            <span>{i18n.language === "ru" ? "Перед вами" : "Сіздің алдыңызда"}:</span>
+                            <QueueCount branchId={branchId} eventId={ticketData.eventId} />
+                        </div>
+    
+                        <div className="ticket-details">
+                            <span>{i18n.language === "ru" ? "Начало" : "Басталу"}:</span>
                             {new Date(parseInt(ticketData.startTime)).toLocaleTimeString()}
-                        </p>
-                        <p className="ticket-label">
-                            {i18n.language === "ru" ? "Начало" : "Басталу"}
-                        </p>
+                        </div>
                     </div>
                 </div>
             </div>
-
+    
             {status === 'COMPLETED' ? (
-                <ServiceRating
-                eventId={ticketData.eventId}
-                branchId={branchId}
-                />
+                <ServiceRating eventId={ticketData.eventId} branchId={branchId} />
             ) : (
                 <Scoreboard queueData={queueData} />
             )}
         </div>
     );
+    
 }
 
 export default Ticket;
