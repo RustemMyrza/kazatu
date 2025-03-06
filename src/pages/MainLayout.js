@@ -59,7 +59,8 @@ function MainLayout() {
             try {
               const redirectedTicketResponse = await fetch(`${process.env.REACT_APP_BACK_URL}/api/get-redirected-ticket?eventId=${eventId}&branchId=${branchId}`);
               const redirectedTicketResult = await redirectedTicketResponse.json();
-              if (redirectedTicketResult.success) {
+              console.log('redirectedTicketResult.success:', redirectedTicketResult.success);
+              if (redirectedTicketResult.success !== 'false') {
                 console.log('redirectedTicketResult success true');
                 navigate(`ticket/${redirectedTicketResult.EventId}`, {
                   state: {
