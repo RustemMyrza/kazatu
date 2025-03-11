@@ -7,6 +7,7 @@ import MainLayout from "./pages/MainLayout.js"; // Переименовал Home
 import Form from "./Main/GetTicketForm/Form.js";
 import ServiceMenu from "./Main/ServiceMenu.js";
 import ProtectedRoute from "./ProtectedRoute.js";
+import BranchQR from "./BranchQR.js";
 // import Ticket from "./Main/Ticket/Ticket.js";
 import "./App.css";
 import translationEN from "./locales/en/translation.json";
@@ -73,6 +74,7 @@ function App() {
       <Routes>
         <Route path="/branch/:branchId/" element={<MainLayout />}>
           <Route index element={<Form />} />
+          <Route path="qr/" element={<BranchQR />} />
           <Route element={<ProtectedRoute />}>
               <Route path="service/:serviceId/" element={<ServiceMenu />} />
               <Route path="ticket/:ticketId/" element={<Ticket/>}/>

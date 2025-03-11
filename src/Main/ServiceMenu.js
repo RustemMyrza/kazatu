@@ -68,7 +68,7 @@ i18n
 function MainContent() {
     const { t, i18n } = useTranslation();
     const [services, setServices] = useState([]); // Состояние для хранения данных
-    const [branches, setBranches] = useState([]);
+    // const [branches, setBranches] = useState([]);
     const [loading, setLoading] = useState(true); // Состояние для индикатора загрузки
     const [error, setError] = useState(null); // Состояние для обработки ошибок
     const [ticketData, setTicketData] = useState(null);
@@ -79,15 +79,15 @@ function MainContent() {
     const phoneNum = localStorage.getItem('phone');
     const lang = localStorage.getItem('i18nextLng');
     let serviceName = null;
-    let branchName = null;
+    // let branchName = null;
 
-    if (serviceId !== 2002) {
+    if (serviceId !== 1005) {
       serviceName = getParentName(services, serviceId, 'queueId', i18n.language);
     }
 
-    if (branchId) {
-      branchName = getParentName(branches, branchId, 'branchId', i18n.language);
-    }
+    // if (branchId) {
+    //   branchName = getParentName(branches, branchId, 'branchId', i18n.language);
+    // }
 
     useEffect(() => {
       fetch(`${process.env.REACT_APP_BACK_URL}/api/web-service/list`)
@@ -106,7 +106,7 @@ function MainContent() {
       fetch(`${process.env.REACT_APP_BACK_URL}/api/branch/list`)
         .then(response => response.json())
         .then(data => {
-          setBranches(data); // Сохраняем данные в состоянии
+          // setBranches(data); // Сохраняем данные в состоянии
           setLoading(false); // Загрузка завершена
         })
         .catch(err => {
@@ -135,15 +135,26 @@ function MainContent() {
       if (parentService) {
         if (!parentService.children || parentService.children.length === 0) {
           (async () => {
-            const data = await GetTicketRequest({
-              queueId: serviceId,
-              iin,
-              phoneNum,
-              branchId,
-              local: lang
-            });
-            console.log("Полученные данные:", data);
-            setTicketData(data);
+            try {
+              const data = await GetTicketRequest({
+                queueId: serviceId,
+                iin,
+                phoneNum,
+                branchId,
+                local: lang
+              });
+  
+              if (!data || data.status === "false") { // Проверяем статус ответа
+                throw new Error(data?.message || "Нет нужного оператора");
+              }
+  
+              console.log("Полученные данные:", data);
+              setTicketData(data);
+            } catch (error) {
+              console.error("Ошибка запроса:", error);
+              alert(`Ошибка: ${error.message}`); // Выводим alert с ошибкой
+              navigate(-1);
+            }
           })();
         } else {
           setVisibleServices(parentService.children);
@@ -184,9 +195,9 @@ function MainContent() {
     return (
         <div className='main'>
             <main>
-                <h2 className='main-title'>{ serviceId !== '2002' ? serviceName : t("mainTitleInstruction") }</h2>
-                <h4 className='branch-title'>{ branchName ? branchName : 'Филиал не найден' }</h4>
-                {serviceId !== '2002' && (
+            <h2 className='main-title'>{ serviceId !== '1005' ? serviceName : t("mainTitleInstruction") }</h2>
+                {/* <h4 className='branch-title'>{ branchName ? branchName : 'Филиал не найден' }</h4> */}
+                {serviceId !== '1005' && (
                   <button
                     onClick={() => navigate(-1)}
                     className="go-back">

@@ -2,7 +2,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #035c56;
+    background: #FF8C1C;
     border: 1px solid #d1d1d1;
     border-radius: 12px;
     padding: 14px 18px;
@@ -20,7 +20,7 @@
 }
 
 .service-type:hover {
-    background: #029a90;
+    background: #fc9a38;
     transform: translateY(-2px);
     box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.2);
 }

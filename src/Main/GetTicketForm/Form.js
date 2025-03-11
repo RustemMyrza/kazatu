@@ -28,7 +28,7 @@ export default function Form() {
     localStorage.setItem("ticketReceived", "false");
     localStorage.setItem("ticketTimestamp", Date.now());
 
-    navigate("service/2002");
+    navigate("service/1005");
   };
 
   function validateIIN(iin) {

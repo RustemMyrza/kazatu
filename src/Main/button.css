@@ -1,6 +1,6 @@
 .go-back {
     position: fixed; /* Закрепляет кнопку на экране */
-    top: 10vh;
+    top: 3vh;
     left: 10vw;
     z-index: 1000; /* Убедись, что кнопка не перекрывается другими элементами */
     
@@ -11,7 +11,7 @@
     font-size: 16px;
     font-weight: 600;
     color: white;
-    background: #035c56;
+    background: #FF8C1C;
     border: none;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
