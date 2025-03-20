@@ -40,7 +40,7 @@ function MainLayout() {
       const ticketReceived = localStorage.getItem("ticketReceived");
       const eventId = localStorage.getItem("eventId");
 
-      if (ticketReceived === 'true' && eventId !== 'undefined') {
+      if (ticketReceived === 'true' && eventId !== null) {
         try {
           const ticketInfoResponse = await fetch(`${process.env.REACT_APP_BACK_URL}/api/get-ticket-info?eventId=${eventId}&branchId=${branchId}`);
           const ticketInfoResult = await ticketInfoResponse.json();
@@ -89,11 +89,7 @@ function MainLayout() {
           console.error('Ошибка при попытке сделать запрос:', error);
         }
       } else {
-        // localStorage.removeItem('ticketReceived');
-        // localStorage.removeItem('eventId');
-        // localStorage.removeItem('phone');
-        // localStorage.removeItem('iin');
-        // localStorage.removeItem('ticketTimestamp');
+        localStorage.setItem('ticketReceived', false);
       }
     };
     fetchTicketData();
