@@ -11,13 +11,6 @@ import "./Ticket.css";
 
 
 const SSE_URL = `${process.env.REACT_APP_BACK_URL}/api/get-ticket-status`;
-const queueData = [
-    { ticketNumber: 388, windowNumber: 2 },
-    { ticketNumber: 387, windowNumber: 1 },
-    { ticketNumber: 386, windowNumber: 2 },
-    { ticketNumber: 385, windowNumber: 2 },
-    { ticketNumber: 696, windowNumber: 2 },
-];
 
 function Ticket({propTicketData}) {
     const { branchId } = useParams();
@@ -124,7 +117,7 @@ function Ticket({propTicketData}) {
             {status === 'COMPLETED' ? (
                 <ServiceRating eventId={ticketData.eventId} branchId={branchId} />
             ) : (
-                <Scoreboard queueData={queueData} />
+                <Scoreboard currentTicketNum={ ticketData.ticketNo }/>
             )}
         </div>
     );
