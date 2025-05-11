@@ -89,8 +89,8 @@ function Ticket({propTicketData}) {
                     <div className="ticket-content">
                         <p className="ticket-number">{ticketData.ticketNo}</p>
                         <p className="ticket-service">{ticketData.serviceName}</p>
-    
-                        { status === 'CALLING' ? (
+
+                        {status === 'CALLING' ? (
                             <div className="blinking-status">
                                 {i18n.language === "ru" ? `Подойдите к ${windowNum} окну!` : `${windowNum} терезеге келіңіз!`}
                             </div>
@@ -99,16 +99,16 @@ function Ticket({propTicketData}) {
                                 <span>{i18n.language === "ru" ? "Статус" : "Мәртебе"}:</span>
                                 <RealTimeStatus branchId={branchId} ticketData={ticketData} status={status} />
                             </div>
-                        ) }
+                        )}
                         
                         <div className="ticket-details">
                             <span>{i18n.language === "ru" ? "Перед вами" : "Сіздің алдыңызда"}:</span>
                             <QueueCount branchId={branchId} eventId={ticketData.eventId} />
                         </div>
-    
+
                         <div className="ticket-details">
                             <span>{i18n.language === "ru" ? "Начало" : "Басталу"}:</span>
-                            {new Date(parseInt(ticketData.startTime)).toLocaleTimeString()}
+                            <span>{new Date(parseInt(ticketData.startTime)).toLocaleTimeString()}</span>
                         </div>
                     </div>
                 </div>

@@ -51,16 +51,14 @@ const Scoreboard = ({ currentTicketNum }) => {
                 <span>ТАЛОН №</span>
                 <span>ОКНО</span>
             </div>
-            {queue.map((ticket, index) =>{ 
-            console.log('ticket.ticketNum:', ticket.ticketNum);
-            return (
+            {queue.slice(-5).map((ticket, index) => (
                 <ScoreboardRow
                     key={ticket.ticketNum}
                     ticketNumber={ticket.ticketNum}
                     windowNumber={ticket.window}
                     isActive={ticket.ticketNum === currentTicketNum && "active"}
                 />
-            )})}
+            ))}
         </div>
     );
 };

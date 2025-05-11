@@ -1,92 +1,251 @@
 .ticket-container {
     display: flex;
     justify-content: center;
-    padding: 10px;
+    padding: 20px;
+    perspective: 1000px;
 }
 
 .ticket-card {
     background: white;
-    border-radius: 16px;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-    padding: 16px;
-    width: 260px;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    width: 280px;
     text-align: center;
-    border: 1px solid #e3e6eb;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateZ(-1deg) rotateX(2deg);
+    border: 1px solid #d1d5db;
+    border-top: none;
+    transition: transform 0.3s ease;
+    margin-top: 15px;
+    background-image: 
+        radial-gradient(circle at left, #d1d5db 25%, transparent 26%),
+        radial-gradient(circle at right, #d1d5db 25%, transparent 26%);
+    background-size: 20px 20px;
+    background-repeat: repeat-y;
+    background-position: left center, right center;
+    padding: 20px 30px;
+    border-left: 1px solid #d1d5db;
+    border-right: 1px solid #d1d5db;
+    position: relative;
+    overflow: visible;
 }
 
+/* Верхний рваный край */
+.ticket-card::before {
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: 0;
+    right: 0;
+    height: 15px;
+    background: white;
+    clip-path: polygon(
+        0% 100%, 
+        5% 60%, 
+        10% 100%, 
+        15% 40%, 
+        20% 100%, 
+        25% 20%, 
+        30% 100%, 
+        35% 70%, 
+        40% 100%, 
+        45% 30%, 
+        50% 100%, 
+        55% 50%, 
+        60% 100%, 
+        65% 10%, 
+        70% 100%, 
+        75% 80%, 
+        80% 100%, 
+        85% 25%, 
+        90% 100%, 
+        95% 65%, 
+        100% 100%
+    );
+    box-shadow: 
+        0 2px 5px rgba(0, 0, 0, 0.1),
+        inset 0 -1px 0 #d1d5db;
+    border-top: 1px solid #d1d5db;
+    border-left: 1px solid #d1d5db;
+    border-right: 1px solid #d1d5db;
+    z-index: 1;
+}
+
+/* Нижний рваный край */
+.ticket-card::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 0;
+    right: 0;
+    height: 15px;
+    background: white;
+    clip-path: polygon(
+        0% 0%, 
+        5% 40%, 
+        10% 0%, 
+        15% 60%, 
+        20% 0%, 
+        25% 80%, 
+        30% 0%, 
+        35% 30%, 
+        40% 0%, 
+        45% 70%, 
+        50% 0%, 
+        55% 50%, 
+        60% 0%, 
+        65% 90%, 
+        70% 0%, 
+        75% 20%, 
+        80% 0%, 
+        85% 75%, 
+        90% 0%, 
+        95% 35%, 
+        100% 0%
+    );
+    box-shadow: 
+        0 -2px 5px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 #d1d5db;
+    border-bottom: 1px solid #d1d5db;
+    border-left: 1px solid #d1d5db;
+    border-right: 1px solid #d1d5db;
+    z-index: 1;
+}
+
+.ticket-card:hover {
+    transform: rotateZ(-2deg) rotateX(3deg) translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+/* Стили для выделения текста */
 .ticket-title {
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 8px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    position: relative;
+    padding-bottom: 8px;
 }
 
-.ticket-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.ticket-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 25%;
+    right: 25%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #FF8C1C, transparent);
 }
 
 .ticket-number {
-    font-size: 24px;
-    font-weight: bold;
+    font-size: 36px;
+    font-weight: 800;
     color: #FF8C1C;
-    margin-bottom: 4px;
+    margin-bottom: 12px;
+    text-shadow: 1px 2px 3px rgba(0,0,0,0.15);
+    letter-spacing: 3px;
+    background: linear-gradient(to right, #FF8C1C, #FFA94D);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+    display: inline-block;
+    padding: 0 10px;
+}
+
+.ticket-number::before,
+.ticket-number::after {
+    content: '•';
+    color: #FF8C1C;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+}
+
+.ticket-number::before {
+    left: -10px;
+}
+
+.ticket-number::after {
+    right: -10px;
 }
 
 .ticket-service {
-    font-size: 16px;
-    font-weight: 500;
-    color: #444;
-    margin-bottom: 8px;
+    font-size: 17px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 20px;
+    padding: 10px 0;
+    border-top: 2px dashed #e2e8f0;
+    border-bottom: 2px dashed #e2e8f0;
+    width: 100%;
+    background: #f8fafc;
+    border-radius: 4px;
 }
 
 .ticket-details {
-    font-size: 16px;
-    color: #555;
-    background: #f1f3f5;
-    padding: 6px 10px;
+    font-size: 15px;
+    color: #4a5568;
+    background: #f8f9fa;
+    padding: 10px 15px;
     border-radius: 8px;
-    margin: 4px 0;
+    margin: 8px 0;
     width: 90%;
     display: flex;
     justify-content: space-between;
+    border-left: 4px solid #FF8C1C;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.ticket-details span {
-    font-weight: 500;
-    color: #222;
+.ticket-details span:first-child {
+    font-weight: 700;
+    color: #2d3748;
+    text-transform: uppercase;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+}
+
+.ticket-details span:last-child {
+    font-weight: 600;
+    color: #1a202c;
 }
 
 .blinking-status {
-    font-size: 22px;
-    font-weight: bold;
-    margin-bottom: 10px;
-    color: #035c56;
+    font-size: 15px;
+    font-weight: 700;
+    margin: 16px 0;
+    padding: 5px;
+    color: #fff;
     text-align: center;
-    /* Комбинированная анимация: мигание и пульсация */
+    background: linear-gradient(135deg, #db2323, #dd3a3a);
+    border-radius: 8px;
+    width: 100%;
     animation: blinkPulse 1.5s infinite;
-    transition: color 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: none;
 }
 
 @keyframes blinkPulse {
     0% {
         opacity: 1;
         transform: scale(1);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     50% {
-        opacity: 0.5;
-        transform: scale(1.05);
+        opacity: 0.9;
+        transform: scale(1.02);
+        box-shadow: 0 6px 8px rgba(0,0,0,0.15);
     }
     100% {
         opacity: 1;
         transform: scale(1);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
 }
-
-/* Эффект при наведении курсора */
-.blinking-status:hover {
-    color: #ff6600;
-    text-shadow: 0 0 10px rgba(255, 102, 0, 0.7);
-}
-
