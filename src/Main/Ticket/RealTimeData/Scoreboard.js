@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import ScoreboardRow from "./ScoreboardRow";
+import { useTranslation } from "react-i18next";
 import "./Scoreboard.css";
 
 const SSE_URL = `${process.env.REACT_APP_BACK_URL}/api/get-video-server-data`;
@@ -8,6 +9,7 @@ const SSE_URL = `${process.env.REACT_APP_BACK_URL}/api/get-video-server-data`;
 const Scoreboard = ({ currentTicketNum }) => {
     const { branchId } = useParams();
     const [queue, setQueue] = useState([]);
+    const { i18n } = useTranslation();
     console.log('ticketNum:', currentTicketNum);
     useEffect(() => {
         const eventSource = new EventSource(`${SSE_URL}?branchId=${branchId}`);
@@ -48,10 +50,10 @@ const Scoreboard = ({ currentTicketNum }) => {
     return (
         <div className="queue-board">
             <div className="queue-header">
-                <span>ТАЛОН №</span>
-                <span>ОКНО</span>
+                <span>{i18n.language === "ru" ? "ТАЛОН" : "ТАЛОН"}</span>
+                <span>{i18n.language === "ru" ? "ОКНО" : "ТЕРЕЗЕ"}</span>
             </div>
-            {queue.slice(-5).map((ticket, index) => (
+            {queue.slice(0, 5).map((ticket, index) => (
                 <ScoreboardRow
                     key={ticket.ticketNum}
                     ticketNumber={ticket.ticketNum}

@@ -23,53 +23,71 @@ function Ticket({propTicketData}) {
     const [redirectData, setRedirectData] = useState(null);
 
     useEffect(() => {
-        const eventSource = new EventSource(`${SSE_URL}?branchId=${branchId}&eventId=${ticketData.eventId}`);
+    const eventSource = new EventSource(`${SSE_URL}?branchId=${branchId}&eventId=${ticketData.eventId}`);
 
-        eventSource.onmessage = async (event) => {
-            if (!event.data) return;
-            try {
-                localStorage.setItem('ticketReceived', true);
-                localStorage.setItem('eventId', ticketData.eventId);
-                const data = JSON.parse(event.data);
-                console.log('data:', data);
-                if (!data?.action) return;
-                setStatus(data.action);
+    const removeFromQueue = async () => {
+        try {
+            const res = await fetch(`${process.env.REACT_APP_BACK_URL}/api/remove-ticket-queue?branchId=${branchId}&eventId=${ticketData.eventId}`, {
+                method: 'DELETE',
+            });
+            const data = await res.json();
+            console.log('Удалено из Redis:', data);
+        } catch (err) {
+            console.error('Ошибка при удалении из Redis:', err);
+        }
+    };
 
-                if (data.action === "COMPLETED") {
-                    await new Promise(resolve => setTimeout(resolve, 3000));
-                    const redirectedTicket = await checkRedirectedTicket(ticketData.eventId, branchId);
-                    if (redirectedTicket) {
-                        setRedirectData({
-                            eventId: redirectedTicket.EventId,
-                            ticketNo: redirectedTicket.TicketNo,
-                            startTime: redirectedTicket.StartTime,
-                            serviceName: redirectedTicket.ServiceName,
-                        });
-                    } else {
-                        eventSource.close();
-                    }
-                } else if (data.action === "MISSED") {
+    eventSource.onmessage = async (event) => {
+        if (!event.data) return;
+
+        try {
+            localStorage.setItem('ticketReceived', true);
+            localStorage.setItem('eventId', ticketData.eventId);
+
+            const data = JSON.parse(event.data);
+            console.log('data:', data);
+            if (!data?.action) return;
+
+            setStatus(data.action);
+
+            if (data.action === "COMPLETED") {
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                const redirectedTicket = await checkRedirectedTicket(ticketData.eventId, branchId);
+                if (redirectedTicket) {
+                    setRedirectData({
+                        eventId: redirectedTicket.EventId,
+                        ticketNo: redirectedTicket.TicketNo,
+                        startTime: redirectedTicket.StartTime,
+                        serviceName: redirectedTicket.ServiceName,
+                    });
+                } else {
                     eventSource.close();
-                    await new Promise(resolve => setTimeout(resolve, 3000));
-                    ["iin", "phone", "ticketReceived", "ticketTimestamp", 'eventId'].forEach(item => localStorage.removeItem(item));
-                    navigate(`/branch/${branchId}`);
-                } else if (data.action === "CALLING") {
-                    if (data.windowNum) {
-                        setWindowNum(data.windowNum);
-                    }
+                    await removeFromQueue();
                 }
-            } catch (error) {
-                console.error("Ошибка парсинга SSE:", error);
+            } else if (data.action === "MISSED") {
+                eventSource.close();
+                await removeFromQueue();
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                ["iin", "phone", "ticketReceived", "ticketTimestamp", 'eventId'].forEach(item => localStorage.removeItem(item));
+                navigate(`/branch/${branchId}`);
+            } else if (data.action === "CALLING") {
+                if (data.windowNum) {
+                    setWindowNum(data.windowNum);
+                }
             }
-        };
+        } catch (error) {
+            console.error("Ошибка парсинга SSE:", error);
+        }
+    };
 
-        eventSource.onerror = (err) => {
-            console.error("Ошибка SSE:", err);
-            eventSource.close();
-        };
+    eventSource.onerror = (err) => {
+        console.error("Ошибка SSE:", err);
+        eventSource.close();
+    };
 
-        return () => eventSource.close();
+    return () => eventSource.close();
     }, [branchId, i18n.language, navigate, ticketData]);
+
 
     if (redirectData) {
         return <RedirectMessage onRedirect={() => {
@@ -108,13 +126,33 @@ function Ticket({propTicketData}) {
 
                         <div className="ticket-details">
                             <span>{i18n.language === "ru" ? "Начало" : "Басталу"}:</span>
-                            <span>{new Date(parseInt(ticketData.startTime)).toLocaleTimeString()}</span>
+                            <span>
+                                {(() => {
+                                    const date = new Date(parseInt(ticketData.startTime));
+                                    const day = String(date.getDate()).padStart(2, '0');
+                                    const month = String(date.getMonth() + 1).padStart(2, '0'); // месяцы с 0
+                                    const year = date.getFullYear();
+                                    const hours = String(date.getHours()).padStart(2, '0');
+                                    const minutes = String(date.getMinutes()).padStart(2, '0');
+                                    return `${day}.${month}.${year} ${hours}:${minutes}`;
+                                })()}
+                            </span>
+                        </div>
+                    </div>
+                    <div className='bottom-content'>
+                        <div className='cancel-button'>
+                            <form>
+                                <button type="submit" className="cancel-btn">
+                                    {i18n.language === "ru" ? "Отказаться от очереди" : "Кезектен бас тарту"}
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
     
-            {status === 'COMPLETED' ? (
+            {status === 'COMPLETED' ? 
+            (
                 <ServiceRating eventId={ticketData.eventId} branchId={branchId} />
             ) : (
                 <Scoreboard currentTicketNum={ ticketData.ticketNo }/>
