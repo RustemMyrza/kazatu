@@ -21,6 +21,7 @@ function Ticket({propTicketData}) {
     const [status, setStatus] = useState(null);
     const [windowNum, setWindowNum] = useState('');
     const [redirectData, setRedirectData] = useState(null);
+    const iin = localStorage.getItem("iin");
 
     useEffect(() => {
     const eventSource = new EventSource(`${SSE_URL}?branchId=${branchId}&eventId=${ticketData.eventId}`);
@@ -96,6 +97,26 @@ function Ticket({propTicketData}) {
         } />;
     }
 
+    const handleCancelEvent = async (branchId, iin) => {
+        try {
+            const response = await fetch(
+                `${process.env.REACT_APP_BACK_URL}/api/cancel-event?branchId=${branchId}&iin=${iin}`,
+                {
+                    method: 'DELETE',
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error('Ошибка при отмене события');
+            }
+
+            console.log('Событие успешно отменено');
+            // здесь можешь вызвать setStatus или обновить данные
+        } catch (error) {
+            console.error('Ошибка при отправке DELETE-запроса:', error);
+        }
+    };
+
     return (
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
             <div className="ticket-container">
@@ -139,15 +160,19 @@ function Ticket({propTicketData}) {
                             </span>
                         </div>
                     </div>
-                    <div className='bottom-content'>
-                        <div className='cancel-button'>
-                            <form>
-                                <button type="submit" className="cancel-btn">
+                    {status === 'INQUEUE' && (
+                        <div className="bottom-content">
+                            <div className="cancel-button">
+                                <button
+                                    type="button"
+                                    className="cancel-btn"
+                                    onClick={() => handleCancelEvent(branchId, iin)}
+                                >
                                     {i18n.language === "ru" ? "Отказаться от очереди" : "Кезектен бас тарту"}
                                 </button>
-                            </form>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
     
