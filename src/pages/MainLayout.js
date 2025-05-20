@@ -66,7 +66,7 @@ function MainLayout() {
                   state: {
                     eventId: redirectedTicketResult.EventId,
                     ticketNo: redirectedTicketResult.TicketNo,
-                    startTime: redirectedTicketResult.StartTime,
+                    startTime: ticketInfoResult.StartTime,
                     serviceName: redirectedTicketResult.ServiceName
                   }
                 });

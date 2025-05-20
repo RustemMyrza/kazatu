@@ -17,22 +17,10 @@ const Scoreboard = ({ currentTicketNum }) => {
             if (!event.data) return;
             try {
                 const parsedData = JSON.parse(event.data);
-
                 // Убедимся, что parsedData - это массив
                 if (Array.isArray(parsedData)) {
                     // Фильтруем новые билеты, чтобы добавить только уникальные
-                    setQueue((prevQueue) => {
-                        const newQueue = [...prevQueue];
-
-                        // Для каждого билета из parsedData проверяем, нет ли его уже в prevQueue
-                        parsedData.forEach((ticket) => {
-                            if (!newQueue.some(existingTicket => existingTicket.ticketNum === ticket.ticketNum)) {
-                                newQueue.unshift(ticket); // Добавляем в начало списка
-                            }
-                        });
-
-                        return newQueue;
-                    });
+                    setQueue(parsedData);
                 } else {
                     console.log('Неверный формат данных', typeof parsedData);
                 }
@@ -40,12 +28,12 @@ const Scoreboard = ({ currentTicketNum }) => {
                 console.error('Ошибка при обработке данных видеосервера:', error);
             }
         };
-
+        console.log('queue:', queue);
         // Очистка соединения при размонтировании компонента
         return () => {
             eventSource.close();
         };
-    }, [branchId]);
+    }, [branchId, queue]);
 
     return (
         <div className="queue-board">

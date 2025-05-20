@@ -52,7 +52,7 @@ function Ticket({propTicketData}) {
             setStatus(data.action);
 
             if (data.action === "COMPLETED") {
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                await new Promise(resolve => setTimeout(resolve, 5000));
                 const redirectedTicket = await checkRedirectedTicket(ticketData.eventId, branchId);
                 if (redirectedTicket) {
                     setRedirectData({
@@ -131,14 +131,19 @@ function Ticket({propTicketData}) {
 
                         {status === 'CALLING' ? (
                             <div className="blinking-status">
-                                {i18n.language === "ru" ? `Подойдите к ${windowNum} окну!` : `${windowNum} терезеге келіңіз!`}
+                                <span>
+                                    {i18n.language === "ru" ? `Подойдите к ${windowNum} окну!` : `${windowNum} терезеге келіңіз!`}
+                                </span>
                             </div>
                         ) : (
                             <div className="ticket-details">
                                 <span>{i18n.language === "ru" ? "Статус" : "Мәртебе"}:</span>
-                                <RealTimeStatus branchId={branchId} ticketData={ticketData} status={status} />
+                                <span>
+                                    <RealTimeStatus branchId={branchId} ticketData={ticketData} status={status} />
+                                </span>
                             </div>
                         )}
+
                         
                         <div className="ticket-details">
                             <span>{i18n.language === "ru" ? "Перед вами" : "Сіздің алдыңызда"}:</span>
@@ -176,7 +181,7 @@ function Ticket({propTicketData}) {
                 </div>
             </div>
     
-            {status === 'COMPLETED' ? 
+            {status === 'COMPLETED' && redirectData ? 
             (
                 <ServiceRating eventId={ticketData.eventId} branchId={branchId} />
             ) : (
