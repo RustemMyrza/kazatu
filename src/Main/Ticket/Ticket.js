@@ -21,6 +21,7 @@ function Ticket({propTicketData}) {
     const [status, setStatus] = useState(null);
     const [windowNum, setWindowNum] = useState('');
     const [redirectData, setRedirectData] = useState(null);
+    const [isCheckingRedirect, setIsCheckingRedirect] = useState(false);
     const iin = localStorage.getItem("iin");
 
     useEffect(() => {
@@ -39,21 +40,25 @@ function Ticket({propTicketData}) {
     };
 
     eventSource.onmessage = async (event) => {
-        if (!event.data) return;
+    if (!event.data) return;
 
-        try {
-            localStorage.setItem('ticketReceived', true);
-            localStorage.setItem('eventId', ticketData.eventId);
+    try {
+        localStorage.setItem('ticketReceived', true);
+        localStorage.setItem('eventId', ticketData.eventId);
 
-            const data = JSON.parse(event.data);
-            console.log('data:', data);
-            if (!data?.action) return;
+        const data = JSON.parse(event.data);
+        console.log('SSE data:', data);
+        if (!data?.action) return;
 
-            setStatus(data.action);
+        setStatus(data.action);
 
-            if (data.action === "COMPLETED") {
+        if (data.action === "COMPLETED") {
+            setIsCheckingRedirect(true);
+            try {
                 await new Promise(resolve => setTimeout(resolve, 5000));
                 const redirectedTicket = await checkRedirectedTicket(ticketData.eventId, branchId);
+                console.log('Redirect check result:', redirectedTicket);
+                
                 if (redirectedTicket) {
                     setRedirectData({
                         eventId: redirectedTicket.EventId,
@@ -62,10 +67,17 @@ function Ticket({propTicketData}) {
                         serviceName: redirectedTicket.ServiceName,
                     });
                 } else {
+                    setRedirectData(null); // Явно устанавливаем null
                     eventSource.close();
                     await removeFromQueue();
                 }
-            } else if (data.action === "MISSED") {
+            } catch (error) {
+                console.error('Error checking redirect:', error);
+                setRedirectData(null);
+            } finally {
+                setIsCheckingRedirect(false); // Всегда сбрасываем флаг проверки
+            }
+        } else if (data.action === "MISSED") {
                 eventSource.close();
                 await removeFromQueue();
                 await new Promise(resolve => setTimeout(resolve, 3000));
@@ -181,11 +193,10 @@ function Ticket({propTicketData}) {
                 </div>
             </div>
     
-            {status === 'COMPLETED' && redirectData ? 
-            (
+            {status === 'COMPLETED' && redirectData === null && !isCheckingRedirect ? (
                 <ServiceRating eventId={ticketData.eventId} branchId={branchId} />
             ) : (
-                <Scoreboard currentTicketNum={ ticketData.ticketNo }/>
+                <Scoreboard currentTicketNum={ticketData.ticketNo} />
             )}
         </div>
     );

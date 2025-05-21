@@ -10,7 +10,7 @@ const Scoreboard = ({ currentTicketNum }) => {
     const { branchId } = useParams();
     const [queue, setQueue] = useState([]);
     const { i18n } = useTranslation();
-    console.log('ticketNum:', currentTicketNum);
+
     useEffect(() => {
         const eventSource = new EventSource(`${SSE_URL}?branchId=${branchId}`);
         eventSource.onmessage = async (event) => {
@@ -28,7 +28,6 @@ const Scoreboard = ({ currentTicketNum }) => {
                 console.error('Ошибка при обработке данных видеосервера:', error);
             }
         };
-        console.log('queue:', queue);
         // Очистка соединения при размонтировании компонента
         return () => {
             eventSource.close();
