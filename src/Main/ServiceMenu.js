@@ -90,7 +90,7 @@ function MainContent() {
     // }
 
     useEffect(() => {
-      fetch(`${process.env.REACT_APP_BACK_URL}/api/web-service/list`)
+      fetch(`${process.env.REACT_APP_BACK_URL}/api/web-service/list?queueId=1005&branchId=${branchId}`)
         .then(response => response.json())
         .then(data => {
           setServices(data); // Сохраняем данные в состоянии
@@ -100,7 +100,7 @@ function MainContent() {
           setError(`Ошибка загрузки данных: ${err}`);
           setLoading(false); // Завершаем загрузку в случае ошибки
         });
-    }, []);
+    }, [branchId]);
 
     useEffect(() => {
       fetch(`${process.env.REACT_APP_BACK_URL}/api/branch/list`)
@@ -196,7 +196,6 @@ function MainContent() {
         <div className='main'>
             <main>
             <h2 className='main-title'>{ serviceId !== '1005' ? serviceName : t("mainTitleInstruction") }</h2>
-                {/* <h4 className='branch-title'>{ branchName ? branchName : 'Филиал не найден' }</h4> */}
                 {serviceId !== '1005' && (
                   <button
                     onClick={() => navigate(-1)}
