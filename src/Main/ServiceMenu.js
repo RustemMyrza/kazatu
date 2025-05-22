@@ -91,27 +91,16 @@ function MainContent() {
 
     useEffect(() => {
       fetch(`${process.env.REACT_APP_BACK_URL}/api/web-service/list?queueId=1005&branchId=${branchId}`)
-        .then(response => {
-          if (response.status === 200) {
-            return response.json(); // Всё хорошо, продолжаем
-          } else if (response.status === 500) {
-            alert('Нет подходящих операторов');
-            navigate(-1);
-            return Promise.reject('Нет подходящих операторов');
-          } else {
-            throw new Error(`Неожиданный статус: ${response.status}`);
-          }
-        })
+        .then(response => response.json())
         .then(data => {
           setServices(data); // Сохраняем данные в состоянии
           setLoading(false); // Загрузка завершена
         })
         .catch(err => {
-          setError(`Ошибка загрузки данных: ${err.message}`);
+          setError(`Ошибка загрузки данных: ${err}`);
           setLoading(false); // Завершаем загрузку в случае ошибки
         });
-    }, [branchId, navigate]);
-
+    }, [branchId]);
 
     useEffect(() => {
       fetch(`${process.env.REACT_APP_BACK_URL}/api/branch/list`)
@@ -173,7 +162,8 @@ function MainContent() {
       } else if (serviceId === undefined) {
         setVisibleServices(services);
       }
-    }, [serviceId, services, branchId, iin, lang, phoneNum, navigate]); // ✅ Добавляем navigate
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [serviceId, services, branchId, iin, lang, phoneNum]); // ✅ Добавляем navigate
     
     useEffect(() => {
       if (ticketData) {
