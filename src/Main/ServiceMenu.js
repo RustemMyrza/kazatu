@@ -91,16 +91,27 @@ function MainContent() {
 
     useEffect(() => {
       fetch(`${process.env.REACT_APP_BACK_URL}/api/web-service/list?queueId=1005&branchId=${branchId}`)
-        .then(response => response.json())
+        .then(response => {
+          if (response.status === 200) {
+            return response.json(); // Всё хорошо, продолжаем
+          } else if (response.status === 500) {
+            alert('Нет подходящих операторов');
+            navigate(-1);
+            return Promise.reject('Нет подходящих операторов');
+          } else {
+            throw new Error(`Неожиданный статус: ${response.status}`);
+          }
+        })
         .then(data => {
           setServices(data); // Сохраняем данные в состоянии
           setLoading(false); // Загрузка завершена
         })
         .catch(err => {
-          setError(`Ошибка загрузки данных: ${err}`);
+          setError(`Ошибка загрузки данных: ${err.message}`);
           setLoading(false); // Завершаем загрузку в случае ошибки
         });
-    }, [branchId]);
+    }, [branchId, navigate]);
+
 
     useEffect(() => {
       fetch(`${process.env.REACT_APP_BACK_URL}/api/branch/list`)
