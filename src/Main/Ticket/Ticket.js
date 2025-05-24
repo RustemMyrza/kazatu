@@ -27,18 +27,6 @@ function Ticket({propTicketData}) {
     useEffect(() => {
     const eventSource = new EventSource(`${SSE_URL}?branchId=${branchId}&eventId=${ticketData.eventId}`);
 
-    const removeFromQueue = async () => {
-        try {
-            const res = await fetch(`${process.env.REACT_APP_BACK_URL}/api/remove-ticket-queue?branchId=${branchId}&eventId=${ticketData.eventId}`, {
-                method: 'DELETE',
-            });
-            const data = await res.json();
-            console.log('Удалено из Redis:', data);
-        } catch (err) {
-            console.error('Ошибка при удалении из Redis:', err);
-        }
-    };
-
     eventSource.onmessage = async (event) => {
     if (!event.data) return;
 
@@ -69,7 +57,6 @@ function Ticket({propTicketData}) {
                 } else {
                     setRedirectData(null); // Явно устанавливаем null
                     eventSource.close();
-                    await removeFromQueue();
                 }
             } catch (error) {
                 console.error('Error checking redirect:', error);
@@ -79,7 +66,6 @@ function Ticket({propTicketData}) {
             }
         } else if (data.action === "MISSED") {
                 eventSource.close();
-                await removeFromQueue();
                 await new Promise(resolve => setTimeout(resolve, 3000));
                 ["iin", "phone", "ticketReceived", "ticketTimestamp", 'eventId'].forEach(item => localStorage.removeItem(item));
                 navigate(`/branch/${branchId}`);

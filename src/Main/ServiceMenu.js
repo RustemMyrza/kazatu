@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ServiceType from './ServiceType.js';
 import { useTranslation } from "react-i18next";
 import i18n from "i18next";
@@ -42,22 +42,26 @@ i18n
   });
 
   function getParentName(serviceTree, serviceId, propertyId, lang = 'ru') {
-    for (const service of serviceTree) {
-      // eslint-disable-next-line eqeqeq
-      if (service[propertyId] == Number(serviceId)) {  // ✅ Доступ через []
-        // eslint-disable-next-line default-case
-        switch (lang) {
-          case 'ru':
-            return service.name_ru;
-          case 'kz':
-            return service.name_kz;
+    if (Array.isArray(serviceTree)) {
+      for (const service of serviceTree) {
+        // eslint-disable-next-line eqeqeq
+        if (service[propertyId] == Number(serviceId)) {  // ✅ Доступ через []
+          // eslint-disable-next-line default-case
+          switch (lang) {
+            case 'ru':
+              return service.name_ru;
+            case 'kz':
+              return service.name_kz;
+          }
+        }
+    
+        if (service.children.length > 0) {
+          const result = getParentName(service.children, serviceId, propertyId, lang);
+          if (result) return result; // Прерываем выполнение, если нашли нужное значение
         }
       }
-  
-      if (service.children.length > 0) {
-        const result = getParentName(service.children, serviceId, propertyId, lang);
-        if (result) return result; // Прерываем выполнение, если нашли нужное значение
-      }
+    } else {
+      console.log(`serviceTree: ${JSON.stringify(serviceTree, null, 2)}`);
     }
   
     return null; // Если не найдено, возвращаем null
@@ -74,6 +78,7 @@ function MainContent() {
     const [ticketData, setTicketData] = useState(null);
     const { branchId, serviceId } = useParams();
     const navigate = useNavigate();
+    const navigateRef = useRef(navigate);
     const [visibleServices, setVisibleServices] = useState(services);
     const iin = localStorage.getItem('iin');
     const phoneNum = localStorage.getItem('phone');
@@ -91,7 +96,15 @@ function MainContent() {
 
     useEffect(() => {
       fetch(`${process.env.REACT_APP_BACK_URL}/api/web-service/list?queueId=1005&branchId=${branchId}`)
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            // Если статус не 2xx, выбрасываем ошибку с текстом и статусом
+            alert('Нет подходящих операторов');
+            navigateRef.current(-1);
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
         .then(data => {
           setServices(data); // Сохраняем данные в состоянии
           setLoading(false); // Загрузка завершена
