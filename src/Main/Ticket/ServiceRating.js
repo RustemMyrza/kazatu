@@ -1,17 +1,19 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from 'react-router-dom';
 import "./ServiceRating.css";
 
-const ratings = [
-  { value: 1, label: "Плохо", color: "red" },
-  { value: 2, label: "Нормально", color: "orange" },
-  { value: 3, label: "Отлично", color: "green" },
-];
-
 function ServiceRating({ eventId, branchId }) {
     const navigate = useNavigate();
+    const { i18n } = useTranslation();
     const [selectedRating, setSelectedRating] = useState(null);
     const [responseMessage, setResponseMessage] = useState("");
+
+    const ratings = [
+        { value: 1, label: i18n.language === "ru" ? "Плохо" : "Нашар", color: "red" },
+        { value: 2, label: i18n.language === "ru" ? "Нормально" : "Жақсы", color: "orange" },
+        { value: 3, label: i18n.language === "ru" ? "Отлично" : "Тамаша", color: "green" },
+    ];
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -31,13 +33,13 @@ function ServiceRating({ eventId, branchId }) {
             const result = await response.json();
             // eslint-disable-next-line eqeqeq
             if (result.message.trim() == 'Ok') {
-                setResponseMessage('Ваша оценка успешно отправлена');
+                setResponseMessage(i18n.language === "ru" ? 'Ваша оценка успешно отправлена' : "Сіздің бағаңыз сәтті жіберілді.");
                 setSelectedRating(null);
                 ["iin", "phone", "ticketReceived", "ticketTimestamp", 'eventId'].forEach(item => localStorage.removeItem(item));
                 await new Promise(resolve => setTimeout(resolve, 3000));
                 navigate(`/branch/${branchId}`);
             } else {
-                setResponseMessage('Произошла ошибка попробуйте еще раз');
+                setResponseMessage(i18n.language === "ru" ? 'Произошла ошибка попробуйте еще раз' : "Ошибка, қайта қайталап көріңіз.");
             }
         } else {
             setResponseMessage("Ошибка при отправке");
@@ -50,7 +52,7 @@ function ServiceRating({ eventId, branchId }) {
 
     return (
         <form className="rating-container" onSubmit={handleSubmit}>
-        <h3 className="rating-title">Оцените обслуживание</h3>
+        <h3 className="rating-title">{i18n.language === "ru" ? "Оцените обслуживание" : "Қызметке баға беріңіз"}</h3>
         <div className="rating-stars">
             {ratings.map((rating) => (
             <span
@@ -68,7 +70,7 @@ function ServiceRating({ eventId, branchId }) {
             </p>
         )}
         <button type="submit" className="submit-button" disabled={selectedRating === null}>
-            Отправить
+            {i18n.language === "ru" ? "Отправить" : "Жіберу"}
         </button>
         {responseMessage && <p className="response-message">{responseMessage}</p>}
         </form>
