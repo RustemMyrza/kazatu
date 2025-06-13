@@ -95,7 +95,7 @@ function MainContent() {
     // }
 
     useEffect(() => {
-      fetch(`${process.env.REACT_APP_BACK_URL}/api/web-service/list?queueId=1005&branchId=${branchId}`)
+      fetch(`${process.env.REACT_APP_BACK_URL}/api/web-service/list?queueId=${serviceId}&branchId=${branchId}`)
         .then(response => {
           if (!response.ok) {
             // Если статус не 2xx, выбрасываем ошибку с текстом и статусом
@@ -106,14 +106,14 @@ function MainContent() {
           return response.json();
         })
         .then(data => {
-          setServices(data); // Сохраняем данные в состоянии
+          setServices(data.data); // Сохраняем данные в состоянии
           setLoading(false); // Загрузка завершена
         })
         .catch(err => {
           setError(`Ошибка загрузки данных: ${err}`);
           setLoading(false); // Завершаем загрузку в случае ошибки
         });
-    }, [branchId]);
+    }, [branchId, serviceId]);
 
     useEffect(() => {
       fetch(`${process.env.REACT_APP_BACK_URL}/api/branch/list`)
@@ -129,24 +129,10 @@ function MainContent() {
     }, []);
 
     useEffect(() => {
+      if (loading) return;
       setVisibleServices([]);
-    
-      if (!services.length) return;
-    
-      const findById = (nodes, id) => {
-        for (const node of nodes) {
-          if (node.queueId === id) return node;
-          if (node.children.length > 0) {
-            const found = findById(node.children, id);
-            if (found) return found;
-          }
-        }
-        return null;
-      };
-    
-      const parentService = findById(services, Number(serviceId));
-      if (parentService) {
-        if (!parentService.children || parentService.children.length === 0) {
+      if (services) {
+        if (services.length === 0) {
           (async () => {
             try {
               const data = await GetTicketRequest({
@@ -156,11 +142,11 @@ function MainContent() {
                 branchId,
                 local: lang
               });
-  
+
               if (!data || data.status === "false") { // Проверяем статус ответа
                 throw new Error(data?.message || "Нет нужного оператора");
               }
-  
+
               console.log("Полученные данные:", data);
               setTicketData(data);
             } catch (error) {
@@ -170,13 +156,11 @@ function MainContent() {
             }
           })();
         } else {
-          setVisibleServices(parentService.children);
+          setVisibleServices(services);
         }
-      } else if (serviceId === undefined) {
-        setVisibleServices(services);
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [serviceId, services, branchId, iin, lang, phoneNum]); // ✅ Добавляем navigate
+    }, [serviceId, services, loading]); // ✅ Добавляем navigate
     
     useEffect(() => {
       if (ticketData) {
