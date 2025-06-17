@@ -130,9 +130,10 @@ function MainContent() {
 
     useEffect(() => {
       if (loading) return;
+      let servicesForName = visibleServices;
       setVisibleServices([]);
       if (services) {
-        if (services.length === 0) {
+        if (services.length === 0 && serviceId !== "1005") {
           (async () => {
             try {
               const data = await GetTicketRequest({
@@ -141,6 +142,15 @@ function MainContent() {
                 phoneNum,
                 branchId,
                 local: lang
+              });
+
+              servicesForName.forEach(element => {
+                if (element[`name_${lang}`] === data.serviceName) {
+                  data.serviceName = {
+                    'ru': element.name_ru,
+                    'kz': element.name_kz
+                  }
+                }
               });
 
               if (!data || data.status === "false") { // Проверяем статус ответа
@@ -163,7 +173,7 @@ function MainContent() {
     }, [serviceId, services, loading]); // ✅ Добавляем navigate
     
     useEffect(() => {
-      if (ticketData) {
+      if (ticketData && serviceId !== "1005") {
         console.log("ticketData перед navigate:", ticketData);
         if (ticketData?.eventId) {
           navigate(`/branch/${branchId}/ticket/${ticketData.eventId}`, {
@@ -171,7 +181,7 @@ function MainContent() {
           });
         }
       }
-    }, [ticketData, branchId, navigate]); // ✅ Ждем, пока ticketData загрузится
+    }, [ticketData, branchId, navigate, serviceId]); // ✅ Ждем, пока ticketData загрузится
     
     
 

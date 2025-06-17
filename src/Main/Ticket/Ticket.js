@@ -125,7 +125,7 @@ function Ticket({propTicketData}) {
     
                     <div className="ticket-content">
                         <p className="ticket-number">{ticketData.ticketNo}</p>
-                        <p className="ticket-service">{ticketData.serviceName}</p>
+                        <p className="ticket-service">{ticketData.serviceName ? ticketData.serviceName[i18n.language] : ticketData.serviceName}</p>
 
                         {status === 'CALLING' ? (
                             <div className="blinking-status">
