@@ -23,68 +23,67 @@ function Ticket({propTicketData}) {
     const [redirectData, setRedirectData] = useState(null);
     const [isCheckingRedirect, setIsCheckingRedirect] = useState(false);
     const iin = localStorage.getItem("iin");
-
     useEffect(() => {
-    const eventSource = new EventSource(`${SSE_URL}?branchId=${branchId}&eventId=${ticketData.eventId}`);
+        const eventSource = new EventSource(`${SSE_URL}?branchId=${branchId}&eventId=${ticketData.eventId}`);
 
-    eventSource.onmessage = async (event) => {
-    if (!event.data) return;
+        eventSource.onmessage = async (event) => {
+        if (!event.data) return;
 
-    try {
-        localStorage.setItem('ticketReceived', true);
-        localStorage.setItem('eventId', ticketData.eventId);
+        try {
+            localStorage.setItem('ticketReceived', true);
+            localStorage.setItem('eventId', ticketData.eventId);
 
-        const data = JSON.parse(event.data);
-        console.log('SSE data:', data);
-        if (!data?.action) return;
+            const data = JSON.parse(event.data);
+            console.log('SSE data:', data);
+            if (!data?.action) return;
 
-        setStatus(data.action);
+            setStatus(data.action);
 
-        if (data.action === "COMPLETED") {
-            setIsCheckingRedirect(true);
-            try {
-                await new Promise(resolve => setTimeout(resolve, 5000));
-                const redirectedTicket = await checkRedirectedTicket(ticketData.eventId, branchId);
-                console.log('Redirect check result:', redirectedTicket);
-                
-                if (redirectedTicket) {
-                    setRedirectData({
-                        eventId: redirectedTicket.EventId,
-                        ticketNo: redirectedTicket.TicketNo,
-                        startTime: redirectedTicket.StartTime,
-                        serviceName: redirectedTicket.ServiceName,
-                    });
-                } else {
-                    setRedirectData(null); // Явно устанавливаем null
+            if (data.action === "COMPLETED") {
+                setIsCheckingRedirect(true);
+                try {
+                    await new Promise(resolve => setTimeout(resolve, 5000));
+                    const redirectedTicket = await checkRedirectedTicket(ticketData.eventId, branchId);
+                    console.log('Redirect check result:', redirectedTicket);
+                    
+                    if (redirectedTicket !== undefined) {
+                        setRedirectData({
+                            eventId: redirectedTicket.EventId,
+                            ticketNo: redirectedTicket.TicketNo,
+                            startTime: redirectedTicket.StartTime,
+                            serviceName: redirectedTicket.ServiceName,
+                        });
+                    } else {
+                        setRedirectData(null); // Явно устанавливаем null
+                        eventSource.close();
+                    }
+                } catch (error) {
+                    console.error('Error checking redirect:', error);
+                    setRedirectData(null);
+                } finally {
+                    setIsCheckingRedirect(false); // Всегда сбрасываем флаг проверки
+                }
+            } else if (data.action === "MISSED") {
                     eventSource.close();
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+                    ["iin", "phone", "ticketReceived", "ticketTimestamp", 'eventId'].forEach(item => localStorage.removeItem(item));
+                    navigate(`/branch/${branchId}`);
+                } else if (data.action === "CALLING") {
+                    if (data.windowNum) {
+                        setWindowNum(data.windowNum);
+                    }
                 }
             } catch (error) {
-                console.error('Error checking redirect:', error);
-                setRedirectData(null);
-            } finally {
-                setIsCheckingRedirect(false); // Всегда сбрасываем флаг проверки
+                console.error("Ошибка парсинга SSE:", error);
             }
-        } else if (data.action === "MISSED") {
-                eventSource.close();
-                await new Promise(resolve => setTimeout(resolve, 3000));
-                ["iin", "phone", "ticketReceived", "ticketTimestamp", 'eventId'].forEach(item => localStorage.removeItem(item));
-                navigate(`/branch/${branchId}`);
-            } else if (data.action === "CALLING") {
-                if (data.windowNum) {
-                    setWindowNum(data.windowNum);
-                }
-            }
-        } catch (error) {
-            console.error("Ошибка парсинга SSE:", error);
-        }
-    };
+        };
 
-    eventSource.onerror = (err) => {
-        console.error("Ошибка SSE:", err);
-        eventSource.close();
-    };
+        eventSource.onerror = (err) => {
+            console.error("Ошибка SSE:", err);
+            eventSource.close();
+        };
 
-    return () => eventSource.close();
+        return () => eventSource.close();
     }, [branchId, i18n.language, navigate, ticketData]);
 
 
@@ -125,7 +124,7 @@ function Ticket({propTicketData}) {
     
                     <div className="ticket-content">
                         <p className="ticket-number">{ticketData.ticketNo}</p>
-                        <p className="ticket-service">{ticketData.serviceName ? ticketData.serviceName[i18n.language] : ticketData.serviceName}</p>
+                        <p className="ticket-service">{typeof ticketData.serviceName === "object" ? ticketData.serviceName[i18n.language] : ticketData.serviceName}</p>
 
                         {status === 'CALLING' ? (
                             <div className="blinking-status">

@@ -58,10 +58,9 @@ function MainLayout() {
           } else if (ticketInfoResult.State === "COMPLETED") {
             try {
               const redirectedTicketResponse = await fetch(`${process.env.REACT_APP_BACK_URL}/api/get-redirected-ticket?eventId=${eventId}&branchId=${branchId}`);
+              let status = redirectedTicketResponse.status;
               const redirectedTicketResult = await redirectedTicketResponse.json();
-              console.log('redirectedTicketResult.success:', redirectedTicketResult.success);
-              if (redirectedTicketResult.success !== 'false') {
-                console.log('redirectedTicketResult success true');
+              if (status === 200) {
                 navigate(`ticket/${redirectedTicketResult.EventId}`, {
                   state: {
                     eventId: redirectedTicketResult.EventId,
@@ -71,7 +70,6 @@ function MainLayout() {
                   }
                 });
               } else {
-                console.log('redirectedTicketResult success false');
                 navigate(`ticket/${ticketInfoResult.EventId}`, {
                   state: {
                     eventId: ticketInfoResult.EventId,
